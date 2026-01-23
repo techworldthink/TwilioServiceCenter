@@ -281,3 +281,27 @@ MIT
 ## Support
 
 For issues and questions, please open a GitHub issue.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+docker-compose -f deployment/docker-compose.prod.yml exec web python manage.py createsuperuser
+
+
+
