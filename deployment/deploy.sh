@@ -35,5 +35,5 @@ echo "Collecting static files..."
 docker-compose -f deployment/docker-compose.prod.yml exec -T web python manage.py collectstatic --noinput
 
 echo "Deployment Complete!"
-echo "App is running on port 8000"
+echo "App is running on port 8085"
 echo "Database (MySQL) is on port 3307"
