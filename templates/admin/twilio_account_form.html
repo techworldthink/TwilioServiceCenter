@@ -1,0 +1,114 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} Twilio Account{% endblock %}
+{% block page_title %}{% if object %}Edit{% else %}Add New{% endif %} Twilio Account{% endblock %}
+
+{% block content %}
+<div class="admin-card" style="max-width: 600px;">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">{% if object %}Edit{% else %}Add{% endif %} Twilio Account</h3>
+    </div>
+
+    <div class="admin-card-body">
+        <div class="admin-alert admin-alert-info">
+            🔒 Your Twilio Auth Token will be encrypted before storage.
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="admin-form-group">
+                <label class="admin-form-label" for="{{ form.name.id_for_label }}">
+                    Friendly Name
+                </label>
+                {{ form.name }}
+                {% if form.name.help_text %}
+                <span class="admin-form-help">{{ form.name.help_text }}</span>
+                {% endif %}
+            </div>
+
+            <div class="admin-form-group">
+                <label class="admin-form-label" for="{{ form.sid.id_for_label }}">
+                    Account SID *
+                </label>
+                {{ form.sid }}
+                {% if form.sid.help_text %}
+                <span class="admin-form-help">{{ form.sid.help_text }}</span>
+                {% endif %}
+                {% if form.sid.errors %}
+                {% for error in form.sid.errors %}
+                <span class="admin-form-error">{{ error }}</span>
+                {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="admin-form-group">
+                <label class="admin-form-label" for="{{ form.phone_number.id_for_label }}">
+                    Primary Phone Number
+                </label>
+                {{ form.phone_number }}
+                {% if form.phone_number.help_text %}
+                <span class="admin-form-help">{{ form.phone_number.help_text }}</span>
+                {% endif %}
+            </div>
+
+            <div class="admin-form-group">
+                <label class="admin-form-label" for="{{ form.auth_token.id_for_label }}">
+                    Auth Token {% if not object %}*{% else %}(leave blank to keep current){% endif %}
+                </label>
+                {{ form.auth_token }}
+                {% if form.auth_token.help_text %}
+                <span class="admin-form-help">{{ form.auth_token.help_text }}</span>
+                {% endif %}
+                {% if form.auth_token.errors %}
+                {% for error in form.auth_token.errors %}
+                <span class="admin-form-error">{{ error }}</span>
+                {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="admin-form-group">
+                <label class="admin-form-label" for="{{ form.description.id_for_label }}">
+                    Description
+                </label>
+                {{ form.description }}
+                {% if form.description.help_text %}
+                <span class="admin-form-help">{{ form.description.help_text }}</span>
+                {% endif %}
+            </div>
+
+            <h4
+                style="margin: 1.5rem 0 1rem 0; color: var(--admin-text-muted); border-bottom: 1px solid var(--admin-border); padding-bottom: 0.5rem;">
+                Account Capabilities
+            </h4>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem;">
+                <div class="admin-form-group" style="display: flex; align-items: center; gap: 0.5rem;">
+                    {{ form.capability_sms }}
+                    <label class="admin-form-label" style="margin-bottom: 0;"
+                        for="{{ form.capability_sms.id_for_label }}">SMS</label>
+                </div>
+                <div class="admin-form-group" style="display: flex; align-items: center; gap: 0.5rem;">
+                    {{ form.capability_voice }}
+                    <label class="admin-form-label" style="margin-bottom: 0;"
+                        for="{{ form.capability_voice.id_for_label }}">Voice</label>
+                </div>
+                <div class="admin-form-group" style="display: flex; align-items: center; gap: 0.5rem;">
+                    {{ form.capability_whatsapp }}
+                    <label class="admin-form-label" style="margin-bottom: 0;"
+                        for="{{ form.capability_whatsapp.id_for_label }}">WhatsApp</label>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button type="submit" class="admin-btn admin-btn-primary">
+                    {% if object %}Update{% else %}Add{% endif %} Account
+                </button>
+                <a href="{% url 'admin_dashboard:twilio_account_list' %}" class="admin-btn admin-btn-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

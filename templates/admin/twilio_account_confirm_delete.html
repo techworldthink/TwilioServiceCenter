@@ -1,0 +1,38 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}Delete Twilio Account{% endblock %}
+{% block page_title %}Delete Twilio Account{% endblock %}
+
+{% block content %}
+<div class="admin-card" style="max-width: 600px;">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Confirm Deletion</h3>
+    </div>
+
+    <div class="admin-card-body">
+        <div class="admin-alert admin-alert-warning">
+            ⚠️ Warning: This action cannot be undone!
+        </div>
+
+        <p style="margin: 1.5rem 0;">
+            Are you sure you want to delete the Twilio account <strong>{{ object.sid }}</strong>?
+        </p>
+
+        <p style="color: var(--admin-text-muted); margin-bottom: 2rem;">
+            This will also delete all associated routing rules.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="admin-btn admin-btn-danger">
+                    Yes, Delete Account
+                </button>
+                <a href="{% url 'admin_dashboard:twilio_account_list' %}" class="admin-btn admin-btn-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

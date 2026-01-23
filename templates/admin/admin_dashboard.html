@@ -1,0 +1,133 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard Overview{% endblock %}
+
+{% block content %}
+<!-- Statistics Cards -->
+<div class="admin-stats-grid">
+    <div class="admin-stat-card">
+        <div class="admin-stat-label">Total Clients</div>
+        <div class="admin-stat-value">{{ total_clients }}</div>
+    </div>
+
+    <div class="admin-stat-card">
+        <div class="admin-stat-label">Active API Keys</div>
+        <div class="admin-stat-value">{{ active_api_keys }}</div>
+    </div>
+
+    <div class="admin-stat-card">
+        <div class="admin-stat-label">Twilio Accounts</div>
+        <div class="admin-stat-value">{{ total_twilio_accounts }}</div>
+    </div>
+
+    <div class="admin-stat-card">
+        <div class="admin-stat-label">Total Balance</div>
+        <div class="admin-stat-value">${{ total_balance|floatformat:2 }}</div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
+    <!-- Recent Clients -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3 class="admin-card-title">Recent Clients</h3>
+            <a href="{% url 'admin_dashboard:client_list' %}" class="admin-btn admin-btn-sm admin-btn-secondary">View
+                All</a>
+        </div>
+        <div class="admin-card-body">
+            {% if recent_clients %}
+            <div class="admin-table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Balance</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for client in recent_clients %}
+                        <tr>
+                            <td>{{ client.name }}</td>
+                            <td>${{ client.balance|floatformat:2 }}</td>
+                            <td>{{ client.created_at|date:"M d, Y" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p style="color: var(--admin-text-muted); text-align: center; padding: 2rem;">No clients yet</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Low Balance Alerts -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3 class="admin-card-title">Low Balance Alerts</h3>
+        </div>
+        <div class="admin-card-body">
+            {% if low_balance_clients %}
+            <div class="admin-table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Balance</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for client in low_balance_clients %}
+                        <tr>
+                            <td>{{ client.name }}</td>
+                            <td>
+                                <span class="admin-badge admin-badge-warning">
+                                    ${{ client.balance|floatformat:2 }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'admin_dashboard:client_balance' client.pk %}"
+                                    class="admin-btn admin-btn-sm admin-btn-success">
+                                    Add Funds
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p style="color: var(--admin-text-muted); text-align: center; padding: 2rem;">All clients have sufficient
+                balance</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="admin-card" style="margin-top: 1.5rem;">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Quick Actions</h3>
+    </div>
+    <div class="admin-card-body">
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <a href="{% url 'admin_dashboard:client_create' %}" class="admin-btn admin-btn-primary">
+                Add Client
+            </a>
+            <a href="{% url 'admin_dashboard:twilio_account_create' %}" class="admin-btn admin-btn-primary">
+                Add Twilio Account
+            </a>
+            <a href="{% url 'admin_dashboard:routing_rule_create' %}" class="admin-btn admin-btn-primary">
+                Add Routing Rule
+            </a>
+            <a href="{% url 'admin_dashboard:apikey_generate' %}" class="admin-btn admin-btn-primary">
+                Generate API Key
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

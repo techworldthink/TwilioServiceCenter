@@ -1,0 +1,73 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}API Key Generated{% endblock %}
+{% block page_title %}API Key Generated Successfully{% endblock %}
+
+{% block content %}
+<div class="admin-card" style="max-width: 700px;">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">API Key Generated Successfully</h3>
+    </div>
+
+    <div class="admin-card-body">
+        <div class="admin-alert admin-alert-success">
+            API key has been generated successfully for <strong>{{ client.name }}</strong>!
+        </div>
+
+        <div class="admin-alert admin-alert-warning">
+            ⚠️ <strong>Important:</strong> This is the only time you'll see the full API key. Copy it now and store it
+            securely!
+        </div>
+
+        <div style="margin: 2rem 0;">
+            <label class="admin-form-label">Your API Key:</label>
+            <div
+                style="background: rgba(139, 92, 246, 0.1); border: 2px solid var(--admin-primary); border-radius: 8px; padding: 1.5rem; position: relative;">
+                <code id="apiKeyValue"
+                    style="font-size: 1.125rem; word-break: break-all; color: var(--admin-primary); font-weight: 600;">{{ plain_key }}</code>
+                <button onclick="copyApiKey()" class="admin-btn admin-btn-sm admin-btn-primary"
+                    style="position: absolute; top: 1rem; right: 1rem;">
+                    📋 Copy
+                </button>
+            </div>
+        </div>
+
+        <div style="background: rgba(30, 41, 59, 0.6); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0;">
+            <h4 style="margin-bottom: 1rem;">Key Details:</h4>
+            <div style="display: grid; grid-template-columns: 150px 1fr; gap: 0.75rem; color: var(--admin-text-muted);">
+                <div><strong>Client:</strong></div>
+                <div>{{ client.name }}</div>
+
+                <div><strong>Prefix:</strong></div>
+                <div><code>{{ api_key.prefix }}...</code></div>
+
+                <div><strong>Created:</strong></div>
+                <div>{{ api_key.created_at|date:"M d, Y H:i" }}</div>
+
+                <div><strong>Status:</strong></div>
+                <div><span class="admin-badge admin-badge-success">Active</span></div>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem;">
+            <a href="{% url 'admin_dashboard:apikey_list' %}" class="admin-btn admin-btn-primary">
+                Back to API Keys
+            </a>
+            <a href="{% url 'admin_dashboard:apikey_generate' %}" class="admin-btn admin-btn-secondary">
+                Generate Another
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function copyApiKey() {
+        const keyText = document.getElementById('apiKeyValue').textContent;
+        navigator.clipboard.writeText(keyText).then(() => {
+            alert('API key copied to clipboard!');
+        }).catch(err => {
+            console.error('Failed to copy:', err);
+        });
+    }
+</script>
+{% endblock %}

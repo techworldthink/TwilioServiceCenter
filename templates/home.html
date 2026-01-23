@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Twilio Service Center{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero section" style="padding-top: var(--spacing-2xl); padding-bottom: var(--spacing-2xl);">
+    <div class="container text-center">
+        <h1 class="animate-fade-in-up" style="font-size: var(--font-size-5xl); margin-bottom: var(--spacing-md);">
+            <span class="text-gradient">Twilio Service Center</span>
+        </h1>
+        <p class="animate-fade-in-up"
+            style="font-size: var(--font-size-xl); color: var(--color-text-secondary); max-width: 800px; margin: 0 auto var(--spacing-xl);">
+            High-performance API relay server that sits between your applications and Twilio.
+            Custom authentication, billing management, and dynamic routing made simple.
+        </p>
+        <div class="animate-fade-in-up"
+            style="display: flex; gap: var(--spacing-md); justify-content: center; flex-wrap: wrap;">
+            <a href="{% url 'api_docs' %}" class="btn btn-primary btn-lg">View Documentation</a>
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-lg">Go to Dashboard</a>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-3 mt-5 scroll-reveal" style="max-width: 900px; margin-left: auto; margin-right: auto;">
+            <div class="card card-glass">
+                <h3 class="text-gradient" style="font-size: var(--font-size-3xl); margin-bottom: var(--spacing-xs);">
+                    99.9%</h3>
+                <p style="color: var(--color-text-muted); margin: 0;">Uptime</p>
+            </div>
+            <div class="card card-glass">
+                <h3 class="text-gradient" style="font-size: var(--font-size-3xl); margin-bottom: var(--spacing-xs);">
+                    &lt;50ms</h3>
+                <p style="color: var(--color-text-muted); margin: 0;">Avg Response Time</p>
+            </div>
+            <div class="card card-glass">
+                <h3 class="text-gradient" style="font-size: var(--font-size-3xl); margin-bottom: var(--spacing-xs);">
+                    10K+</h3>
+                <p style="color: var(--color-text-muted); margin: 0;">Messages/Hour</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="section" style="background: var(--color-bg-secondary);">
+    <div class="container">
+        <h2 class="text-center scroll-reveal" style="margin-bottom: var(--spacing-xl);">
+            Powerful Features for <span class="text-gradient">Modern Applications</span>
+        </h2>
+
+        <div class="grid grid-3">
+            <div class="card scroll-reveal">
+                <div style="font-size: var(--font-size-3xl); margin-bottom: var(--spacing-md);">🔐</div>
+                <h3 class="card-title">Custom Authentication</h3>
+                <p>API key-based authentication with Redis caching for lightning-fast validation. Secure your endpoints
+                    with SHA256 hashed keys.</p>
+            </div>
+
+            <div class="card scroll-reveal">
+                <div style="font-size: var(--font-size-3xl); margin-bottom: var(--spacing-md);">💰</div>
+                <h3 class="card-title">Billing Management</h3>
+                <p>Atomic balance deduction with transaction safety. Track usage, set limits, and manage client accounts
+                    with precision.</p>
+            </div>
+
+            <div class="card scroll-reveal">
+                <div style="font-size: var(--font-size-3xl); margin-bottom: var(--spacing-md);">🔄</div>
+                <h3 class="card-title">Dynamic Routing</h3>
+                <p>Route messages to different Twilio accounts based on phone number patterns. Flexible priority-based
+                    routing rules.</p>
+            </div>
+
+            <div class="card scroll-reveal">
+                <div style="font-size: var(--font-size-3xl); margin-bottom: var(--spacing-md);">🔒</div>
+                <h3 class="card-title">Token Encryption</h3>
+                <p>Secure storage of Twilio credentials using Fernet encryption. Your auth tokens are protected with
+                    military-grade security.</p>
+            </div>
+
+            <div class="card scroll-reveal">
+                <div style="font-size: var(--font-size-3xl); margin-bottom: var(--spacing-md);">📊</div>
+                <h3 class="card-title">Real-time Analytics</h3>
+                <p>Monitor message delivery, track costs, and analyze usage patterns with comprehensive webhook support.
+                </p>
+            </div>
+
+            <div class="card scroll-reveal">
+                <div style="font-size: var(--font-size-3xl); margin-bottom: var(--spacing-md);">🐳</div>
+                <h3 class="card-title">Docker Ready</h3>
+                <p>Fully containerized with PostgreSQL and Redis. Deploy anywhere with Docker Compose in minutes.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="section">
+    <div class="container">
+        <h2 class="text-center scroll-reveal" style="margin-bottom: var(--spacing-xl);">
+            How It <span class="text-gradient">Works</span>
+        </h2>
+
+        <div class="grid grid-3">
+            <div class="text-center scroll-reveal">
+                <div
+                    style="width: 80px; height: 80px; margin: 0 auto var(--spacing-md); background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: var(--font-size-2xl); font-weight: 700;">
+                    1</div>
+                <h4>Client Request</h4>
+                <p>Your application sends an SMS request to our relay server with your API key.</p>
+            </div>
+
+            <div class="text-center scroll-reveal">
+                <div
+                    style="width: 80px; height: 80px; margin: 0 auto var(--spacing-md); background: var(--gradient-accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: var(--font-size-2xl); font-weight: 700;">
+                    2</div>
+                <h4>Authentication & Routing</h4>
+                <p>We validate your credentials, check billing, and route to the appropriate Twilio account.</p>
+            </div>
+
+            <div class="text-center scroll-reveal">
+                <div
+                    style="width: 80px; height: 80px; margin: 0 auto var(--spacing-md); background: var(--gradient-success); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: var(--font-size-2xl); font-weight: 700;">
+                    3</div>
+                <h4>Message Delivery</h4>
+                <p>Your message is sent via Twilio, and you receive real-time status updates via webhooks.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- API Example -->
+<section class="section" style="background: var(--color-bg-secondary);">
+    <div class="container">
+        <h2 class="text-center scroll-reveal" style="margin-bottom: var(--spacing-xl);">
+            Simple <span class="text-gradient">API Integration</span>
+        </h2>
+
+        <div class="card scroll-reveal" style="max-width: 800px; margin: 0 auto;">
+            <pre
+                style="background: var(--color-bg-primary); padding: var(--spacing-lg); border-radius: var(--radius-md); overflow-x: auto; color: var(--color-text-secondary); margin: 0;"><code>curl -X POST http://localhost:8000/relay/sms \
+  -H "X-Proxy-Auth: your_api_key_here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "To": "+1234567890",
+    "From": "+0987654321",
+    "Body": "Hello from Twilio Service Center!"
+  }'</code></pre>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="{% url 'api_docs' %}" class="btn btn-primary">View Full API Documentation</a>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="section">
+    <div class="container text-center">
+        <div class="card card-glass scroll-reveal"
+            style="max-width: 800px; margin: 0 auto; padding: var(--spacing-2xl);">
+            <h2 style="margin-bottom: var(--spacing-md);">Ready to Get Started?</h2>
+            <p style="font-size: var(--font-size-lg); margin-bottom: var(--spacing-xl);">
+                Deploy your own Twilio Service Center in minutes with Docker Compose.
+            </p>
+            <div style="display: flex; gap: var(--spacing-md); justify-content: center; flex-wrap: wrap;">
+                <a href="/admin/" class="btn btn-primary btn-lg">Access Admin Panel</a>
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-lg">View Dashboard</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

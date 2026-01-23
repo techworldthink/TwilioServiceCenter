@@ -1,0 +1,11 @@
+django
+twilio
+python-dotenv
+djangorestframework
+psycopg2-binary
+django-redis
+cryptography
+dj-database-url
+gunicorn
+drf-spectacular
+mysqlclient

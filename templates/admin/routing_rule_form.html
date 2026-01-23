@@ -1,0 +1,82 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} Routing Rule{% endblock %}
+{% block page_title %}{% if object %}Edit{% else %}Add New{% endif %} Routing Rule{% endblock %}
+
+{% block content %}
+<div class="admin-card" style="max-width: 600px;">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">{% if object %}Edit{% else %}Create{% endif %} Routing Rule</h3>
+    </div>
+
+    <div class="admin-card-body">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="admin-form-group">
+                <label class="admin-form-label" for="{{ form.priority.id_for_label }}">
+                    Priority *
+                </label>
+                {{ form.priority }}
+                {% if form.priority.help_text %}
+                <span class="admin-form-help">{{ form.priority.help_text }}</span>
+                {% endif %}
+                {% if form.priority.errors %}
+                {% for error in form.priority.errors %}
+                <span class="admin-form-error">{{ error }}</span>
+                {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="admin-form-group">
+                <label class="admin-form-label" for="{{ form.pattern.id_for_label }}">
+                    Pattern (Regex) *
+                </label>
+                {{ form.pattern }}
+                {% if form.pattern.help_text %}
+                <span class="admin-form-help">{{ form.pattern.help_text }}</span>
+                {% endif %}
+                {% if form.pattern.errors %}
+                {% for error in form.pattern.errors %}
+                <span class="admin-form-error">{{ error }}</span>
+                {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="admin-form-group">
+                <label class="admin-form-label" for="{{ form.account.id_for_label }}">
+                    Twilio Account *
+                </label>
+                {{ form.account }}
+                {% if form.account.help_text %}
+                <span class="admin-form-help">{{ form.account.help_text }}</span>
+                {% endif %}
+                {% if form.account.errors %}
+                {% for error in form.account.errors %}
+                <span class="admin-form-error">{{ error }}</span>
+                {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="admin-form-group">
+                <label class="admin-form-label" for="{{ form.description.id_for_label }}">
+                    Description
+                </label>
+                {{ form.description }}
+                {% if form.description.help_text %}
+                <span class="admin-form-help">{{ form.description.help_text }}</span>
+                {% endif %}
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button type="submit" class="admin-btn admin-btn-primary">
+                    {% if object %}Update{% else %}Create{% endif %} Rule
+                </button>
+                <a href="{% url 'admin_dashboard:routing_rule_list' %}" class="admin-btn admin-btn-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

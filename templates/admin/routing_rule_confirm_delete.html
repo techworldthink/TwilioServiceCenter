@@ -1,0 +1,47 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}Delete Routing Rule{% endblock %}
+{% block page_title %}Delete Routing Rule{% endblock %}
+
+{% block content %}
+<div class="admin-card" style="max-width: 600px;">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Confirm Deletion</h3>
+    </div>
+
+    <div class="admin-card-body">
+        <div class="admin-alert admin-alert-warning">
+            ⚠️ Warning: This action cannot be undone!
+        </div>
+
+        <p style="margin: 1.5rem 0;">
+            Are you sure you want to delete this routing rule?
+        </p>
+
+        <div style="background: rgba(30, 41, 59, 0.6); border-radius: 8px; padding: 1rem; margin-bottom: 2rem;">
+            <div style="display: grid; grid-template-columns: 100px 1fr; gap: 0.5rem; color: var(--admin-text-muted);">
+                <div><strong>Priority:</strong></div>
+                <div>{{ object.priority }}</div>
+
+                <div><strong>Pattern:</strong></div>
+                <div><code>{{ object.pattern }}</code></div>
+
+                <div><strong>Account:</strong></div>
+                <div>{{ object.account.sid }}</div>
+            </div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="admin-btn admin-btn-danger">
+                    Yes, Delete Rule
+                </button>
+                <a href="{% url 'admin_dashboard:routing_rule_list' %}" class="admin-btn admin-btn-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

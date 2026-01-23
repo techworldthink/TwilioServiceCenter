@@ -1,0 +1,92 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}Clients{% endblock %}
+{% block page_title %}Client Management{% endblock %}
+
+{% block content %}
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">All Clients</h3>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <form method="get" style="display: flex; gap: 0.5rem;">
+                <input type="text" name="search" placeholder="Search clients..." value="{{ request.GET.search }}"
+                    class="admin-form-control" style="width: 250px;">
+                <button type="submit" class="admin-btn admin-btn-secondary">Search</button>
+            </form>
+            <a href="{% url 'admin_dashboard:client_create' %}" class="admin-btn admin-btn-primary">
+                Add Client
+            </a>
+        </div>
+    </div>
+
+    <div class="admin-card-body">
+        {% if clients %}
+        <div class="admin-table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Balance</th>
+                        <th>Active API Keys</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for client in clients %}
+                    <tr>
+                        <td><strong>{{ client.name }}</strong></td>
+                        <td>
+                            {% if client.balance < 10 %} <span class="admin-badge admin-badge-warning">${{
+                                client.balance|floatformat:2 }}</span>
+                                {% else %}
+                                <span class="admin-badge admin-badge-success">${{ client.balance|floatformat:2 }}</span>
+                                {% endif %}
+                        </td>
+                        <td>{{ client.active_keys_count }}</td>
+                        <td>{{ client.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <a href="{% url 'admin_dashboard:client_edit' client.pk %}"
+                                    class="admin-btn admin-btn-sm admin-btn-secondary">Edit</a>
+                                <a href="{% url 'admin_dashboard:client_balance' client.pk %}"
+                                    class="admin-btn admin-btn-sm admin-btn-success">Balance</a>
+                                <a href="{% url 'admin_dashboard:client_delete' client.pk %}"
+                                    class="admin-btn admin-btn-sm admin-btn-danger">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div style="margin-top: 1.5rem; text-align: center;">
+            {% if page_obj.has_previous %}
+            <a href="?page=1" class="admin-btn admin-btn-sm admin-btn-secondary">First</a>
+            <a href="?page={{ page_obj.previous_page_number }}"
+                class="admin-btn admin-btn-sm admin-btn-secondary">Previous</a>
+            {% endif %}
+
+            <span style="margin: 0 1rem; color: var(--admin-text-muted);">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="admin-btn admin-btn-sm admin-btn-secondary">Next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}"
+                class="admin-btn admin-btn-sm admin-btn-secondary">Last</a>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% else %}
+        <p style="text-align: center; padding: 3rem; color: var(--admin-text-muted);">
+            No clients found. <a href="{% url 'admin_dashboard:client_create' %}"
+                style="color: var(--admin-primary);">Create one now</a>
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

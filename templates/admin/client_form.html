@@ -1,0 +1,114 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} Client{% endblock %}
+{% block page_title %}{% if object %}Edit{% else %}Create New{% endif %} Client{% endblock %}
+
+{% block content %}
+<div class="admin-card" style="max-width: 1000px;">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">{% if object %}Edit{% else %}Create{% endif %} Client Profile</h3>
+    </div>
+
+    <div class="admin-card-body">
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="admin-alert admin-alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+
+                <!-- Left Column: Identity & Contact -->
+                <div>
+                    <h4
+                        style="margin-bottom: 1rem; color: var(--admin-text-muted); border-bottom: 1px solid var(--admin-border); padding-bottom: 0.5rem;">
+                        Identity & Contact
+                    </h4>
+
+                    <div class="admin-form-group">
+                        <label class="admin-form-label" for="{{ form.name.id_for_label }}">Full Name *</label>
+                        {{ form.name }}
+                        {{ form.name.errors }}
+                    </div>
+
+                    <div class="admin-form-group">
+                        <label class="admin-form-label" for="{{ form.company_name.id_for_label }}">Company Name</label>
+                        {{ form.company_name }}
+                        {{ form.company_name.errors }}
+                    </div>
+
+                    <div class="admin-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="admin-form-group">
+                            <label class="admin-form-label" for="{{ form.email.id_for_label }}">Email</label>
+                            {{ form.email }}
+                            {{ form.email.errors }}
+                        </div>
+                        <div class="admin-form-group">
+                            <label class="admin-form-label" for="{{ form.phone_number.id_for_label }}">Phone</label>
+                            {{ form.phone_number }}
+                            {{ form.phone_number.errors }}
+                        </div>
+                    </div>
+
+                    <div class="admin-form-group">
+                        <label class="admin-form-label" for="{{ form.website.id_for_label }}">Website</label>
+                        {{ form.website }}
+                        {{ form.website.errors }}
+                    </div>
+                </div>
+
+                <!-- Right Column: Details & Billing -->
+                <div>
+                    <h4
+                        style="margin-bottom: 1rem; color: var(--admin-text-muted); border-bottom: 1px solid var(--admin-border); padding-bottom: 0.5rem;">
+                        Billing & Details
+                    </h4>
+
+                    <div class="admin-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="admin-form-group">
+                            <label class="admin-form-label" for="{{ form.balance.id_for_label }}">Initial Balance
+                                (USD)</label>
+                            {{ form.balance }}
+                            {{ form.balance.errors }}
+                        </div>
+                        <div class="admin-form-group"
+                            style="display: flex; flex-direction: column; justify-content: center;">
+                            <label class="admin-form-label" for="{{ form.is_active.id_for_label }}"
+                                style="margin-bottom: 0.5rem;">Status</label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                {{ form.is_active }}
+                                <span>Active Account</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="admin-form-group">
+                        <label class="admin-form-label" for="{{ form.address.id_for_label }}">Billing Address</label>
+                        {{ form.address }}
+                        {{ form.address.errors }}
+                    </div>
+
+                    <div class="admin-form-group">
+                        <label class="admin-form-label" for="{{ form.notes.id_for_label }}">Internal Notes</label>
+                        {{ form.notes }}
+                        {{ form.notes.errors }}
+                    </div>
+                </div>
+            </div>
+
+            <div
+                style="display: flex; gap: 1rem; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--admin-border);">
+                <button type="submit" class="admin-btn admin-btn-primary">
+                    {% if object %}Save Changes{% else %}Create Client{% endif %}
+                </button>
+                <a href="{% url 'admin_dashboard:client_list' %}" class="admin-btn admin-btn-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

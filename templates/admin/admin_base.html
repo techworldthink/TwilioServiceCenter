@@ -1,0 +1,145 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Dashboard{% endblock %} - Twilio Service Center</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Admin CSS -->
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}?v=2">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="admin-body">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="admin-sidebar-logo">
+            <h2>Admin Panel</h2>
+            <p>Twilio Service Center</p>
+        </div>
+
+        <nav>
+            <ul class="admin-nav">
+                <li class="admin-nav-item">
+                    <a href="{% url 'admin_dashboard:dashboard' %}"
+                        class="admin-nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="{% url 'admin_dashboard:client_list' %}"
+                        class="admin-nav-link {% if 'client' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-users"></i>
+                        <span>Clients</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="{% url 'admin_dashboard:apikey_list' %}"
+                        class="admin-nav-link {% if 'apikey' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-key"></i>
+                        <span>API Keys</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="{% url 'admin_dashboard:twilio_account_list' %}"
+                        class="admin-nav-link {% if 'twilio_account' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-comments"></i>
+                        <span>Twilio Accounts</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="{% url 'admin_dashboard:routing_rule_list' %}"
+                        class="admin-nav-link {% if 'routing_rule' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-route"></i>
+                        <span>Routing Rules</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="{% url 'admin_dashboard:monitoring' %}"
+                        class="admin-nav-link {% if request.resolver_match.url_name == 'monitoring' %}active{% endif %}">
+                        <i class="fas fa-heartbeat"></i>
+                        <span>System Health</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item"
+                    style="margin-top: 2rem; border-top: 1px solid rgba(148, 163, 184, 0.1); padding-top: 1rem;">
+                    <a href="{% url 'home' %}" class="admin-nav-link">
+                        <span>Back to Site</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="/admin/logout/" class="admin-nav-link">
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Top Bar -->
+    <header class="admin-topbar">
+        <div class="admin-topbar-title">
+            <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+        </div>
+
+        <div class="admin-topbar-actions">
+            <div class="admin-user-info">
+                <div class="admin-user-avatar">
+                    {{ request.user.username|slice:":1"|upper }}
+                </div>
+                <span class="admin-user-name">{{ request.user.username }}</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        <div class="admin-container">
+            <!-- Messages -->
+            {% if messages %}
+            {% for message in messages %}
+            <div class="admin-alert admin-alert-{{ message.tags }}">
+                <span>{{ message }}</span>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <!-- Page Content -->
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile sidebar toggle
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('adminSidebar');
+
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+            });
+        }
+
+        // Auto-hide alerts after 5 seconds
+        document.querySelectorAll('.admin-alert').forEach(alert => {
+            setTimeout(() => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            }, 5000);
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

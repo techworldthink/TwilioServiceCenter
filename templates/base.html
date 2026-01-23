@@ -1,0 +1,131 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Twilio Service Center - High-performance API relay server for Twilio messaging">
+    <title>{% block title %}Twilio Service Center{% endblock %}</title>
+
+    <!-- Base CSS -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+
+    <!-- Additional Page CSS -->
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-container">
+            <a href="{% url 'home' %}" class="navbar-brand">Twilio Service Center</a>
+
+            <button class="navbar-toggle" id="navbarToggle">
+                ☰
+            </button>
+
+            <ul class="navbar-menu" id="navbarMenu">
+                <li><a href="{% url 'home' %}"
+                        class="navbar-link {% if request.path == '/' %}active{% endif %}">Home</a></li>
+                <li><a href="{% url 'api_docs' %}"
+                        class="navbar-link {% if 'docs' in request.path %}active{% endif %}">API Docs</a></li>
+                <li><a href="{% url 'dashboard' %}"
+                        class="navbar-link {% if 'dashboard' in request.path %}active{% endif %}">Dashboard</a></li>
+                <li><a href="#login" class="navbar-link">Client Login</a></li>
+                <li><a href="#contact" class="btn btn-primary btn-sm">Get Started</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main style="padding-top: 80px;">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4 class="text-gradient">Twilio Service Center</h4>
+                    <p>High-performance API relay server for Twilio messaging with custom authentication, billing
+                        management, and dynamic routing.</p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="{% url 'api_docs' %}">API Documentation</a></li>
+                        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                        <li><a href="#login">Client Login</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://www.twilio.com/docs" target="_blank">Twilio Docs</a></li>
+                        <li><a href="https://github.com" target="_blank">GitHub</a></li>
+                        <li><a href="#support">Support</a></li>
+                        <li><a href="#status">Status</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <ul class="footer-links">
+                        <li><a href="mailto:support@twilioservicecenter.com">support@twilioservicecenter.com</a></li>
+                        <li><a href="#pricing">Pricing</a></li>
+                        <li><a href="#faq">FAQ</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 Twilio Service Center. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', function () {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Mobile menu toggle
+        document.getElementById('navbarToggle').addEventListener('click', function () {
+            document.getElementById('navbarMenu').classList.toggle('active');
+        });
+
+        // Scroll reveal animation
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function (entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.scroll-reveal').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

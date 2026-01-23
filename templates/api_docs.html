@@ -1,0 +1,390 @@
+{% extends 'base.html' %}
+
+{% block title %}API Documentation - Twilio Service Center{% endblock %}
+
+{% block extra_css %}
+<style>
+    .docs-nav {
+        position: sticky;
+        top: 100px;
+        background: var(--color-bg-glass);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-lg);
+    }
+
+    .docs-nav a {
+        display: block;
+        padding: var(--spacing-xs) var(--spacing-sm);
+        color: var(--color-text-secondary);
+        border-left: 2px solid transparent;
+        transition: all var(--transition-fast);
+    }
+
+    .docs-nav a:hover {
+        color: var(--color-text-primary);
+        border-left-color: var(--color-accent-primary);
+        padding-left: var(--spacing-md);
+    }
+
+    .code-block {
+        background: var(--color-bg-primary);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-lg);
+        overflow-x: auto;
+        margin: var(--spacing-md) 0;
+        position: relative;
+    }
+
+    .code-block code {
+        color: var(--color-text-secondary);
+        font-family: 'Courier New', monospace;
+        font-size: var(--font-size-sm);
+    }
+
+    .endpoint {
+        background: var(--color-bg-glass);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-lg);
+        margin: var(--spacing-lg) 0;
+    }
+
+    .method-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--radius-sm);
+        font-weight: 700;
+        font-size: var(--font-size-xs);
+        margin-right: var(--spacing-sm);
+    }
+
+    .method-post {
+        background: var(--gradient-success);
+        color: var(--color-bg-primary);
+    }
+
+    .method-get {
+        background: var(--gradient-accent);
+        color: var(--color-bg-primary);
+    }
+
+    .param-table {
+        width: 100%;
+        margin: var(--spacing-md) 0;
+    }
+
+    .param-table th {
+        text-align: left;
+        padding: var(--spacing-sm);
+        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        color: var(--color-text-secondary);
+    }
+
+    .param-table td {
+        padding: var(--spacing-sm);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .copy-btn {
+        position: absolute;
+        top: var(--spacing-sm);
+        right: var(--spacing-sm);
+        background: var(--color-accent-primary);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        font-size: var(--font-size-xs);
+        transition: all var(--transition-fast);
+    }
+
+    .copy-btn:hover {
+        background: var(--color-accent-secondary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container-wide">
+        <div style="display: grid; grid-template-columns: 250px 1fr; gap: var(--spacing-xl);">
+            <!-- Sidebar Navigation -->
+            <aside class="docs-nav">
+                <h4 style="margin-bottom: var(--spacing-md);">Contents</h4>
+                <nav>
+                    <a href="#overview">Overview</a>
+                    <a href="#authentication">Authentication</a>
+                    <a href="#send-sms">Send SMS</a>
+                    <a href="#webhooks">Webhooks</a>
+                    <a href="#errors">Error Codes</a>
+                    <a href="#examples">Examples</a>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <main>
+                <h1 class="animate-fade-in-up" style="margin-bottom: var(--spacing-md);">
+                    API <span class="text-gradient">Documentation</span>
+                </h1>
+                <p class="animate-fade-in-up"
+                    style="font-size: var(--font-size-lg); color: var(--color-text-secondary); margin-bottom: var(--spacing-xl);">
+                    Complete reference for integrating with Twilio Service Center API
+                </p>
+
+                <!-- Overview -->
+                <section id="overview" class="scroll-reveal">
+                    <h2>Overview</h2>
+                    <p>The Twilio Service Center API allows you to send SMS messages through our relay server. All
+                        requests must be authenticated using an API key.</p>
+
+                    <div class="card">
+                        <h4>Base URL</h4>
+                        <code style="color: var(--color-accent-cyan);">http://localhost:8000/relay/</code>
+                    </div>
+                </section>
+
+                <!-- Authentication -->
+                <section id="authentication" class="scroll-reveal" style="margin-top: var(--spacing-2xl);">
+                    <h2>Authentication</h2>
+                    <p>All API requests require authentication via the <code>X-Proxy-Auth</code> header.</p>
+
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <code>X-Proxy-Auth: your_api_key_here</code>
+                    </div>
+
+                    <div class="card">
+                        <h4>⚠️ Important</h4>
+                        <p>Keep your API keys secure. Never expose them in client-side code or public repositories.</p>
+                    </div>
+                </section>
+
+                <!-- Send SMS Endpoint -->
+                <section id="send-sms" class="scroll-reveal" style="margin-top: var(--spacing-2xl);">
+                    <h2>Send SMS</h2>
+
+                    <div class="endpoint">
+                        <div style="margin-bottom: var(--spacing-md);">
+                            <span class="method-badge method-post">POST</span>
+                            <code style="font-size: var(--font-size-lg);">/relay/sms</code>
+                        </div>
+
+                        <p>Send an SMS message through the relay server.</p>
+
+                        <h4 style="margin-top: var(--spacing-lg);">Request Headers</h4>
+                        <table class="param-table">
+                            <thead>
+                                <tr>
+                                    <th>Header</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>X-Proxy-Auth</code></td>
+                                    <td>string</td>
+                                    <td>Your API key</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Content-Type</code></td>
+                                    <td>string</td>
+                                    <td>application/json</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h4 style="margin-top: var(--spacing-lg);">Request Body</h4>
+                        <table class="param-table">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Type</th>
+                                    <th>Required</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>To</code></td>
+                                    <td>string</td>
+                                    <td>Yes</td>
+                                    <td>Recipient phone number (E.164 format)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>From</code></td>
+                                    <td>string</td>
+                                    <td>No</td>
+                                    <td>Sender phone number</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Body</code></td>
+                                    <td>string</td>
+                                    <td>Yes</td>
+                                    <td>Message content</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h4 style="margin-top: var(--spacing-lg);">Example Request</h4>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <code>curl -X POST http://localhost:8000/relay/sms \
+  -H "X-Proxy-Auth: your_api_key_here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "To": "+1234567890",
+    "From": "+0987654321",
+    "Body": "Hello from Twilio Service Center!"
+  }'</code>
+                        </div>
+
+                        <h4 style="margin-top: var(--spacing-lg);">Success Response (200 OK)</h4>
+                        <div class="code-block">
+                            <code>{
+  "sid": "SM1234567890abcdef",
+  "status": "queued",
+  "cost": "0.0075",
+  "remaining_balance": "99.9925"
+}</code>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Webhooks -->
+                <section id="webhooks" class="scroll-reveal" style="margin-top: var(--spacing-2xl);">
+                    <h2>Webhooks</h2>
+
+                    <div class="endpoint">
+                        <div style="margin-bottom: var(--spacing-md);">
+                            <span class="method-badge method-post">POST</span>
+                            <code style="font-size: var(--font-size-lg);">/relay/twilio/webhook</code>
+                        </div>
+
+                        <p>Receives status callbacks from Twilio for message delivery updates.</p>
+
+                        <div class="card" style="margin-top: var(--spacing-lg);">
+                            <h4>Webhook Events</h4>
+                            <ul>
+                                <li><strong>queued</strong> - Message queued for delivery</li>
+                                <li><strong>sent</strong> - Message sent to carrier</li>
+                                <li><strong>delivered</strong> - Message delivered to recipient</li>
+                                <li><strong>failed</strong> - Message delivery failed</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Error Codes -->
+                <section id="errors" class="scroll-reveal" style="margin-top: var(--spacing-2xl);">
+                    <h2>Error Codes</h2>
+
+                    <table class="param-table">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Status</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>400</code></td>
+                                <td>Bad Request</td>
+                                <td>Missing required parameters (To or Body)</td>
+                            </tr>
+                            <tr>
+                                <td><code>401</code></td>
+                                <td>Unauthorized</td>
+                                <td>Invalid or missing API key</td>
+                            </tr>
+                            <tr>
+                                <td><code>402</code></td>
+                                <td>Payment Required</td>
+                                <td>Insufficient account balance</td>
+                            </tr>
+                            <tr>
+                                <td><code>500</code></td>
+                                <td>Internal Server Error</td>
+                                <td>No routing rule found or Twilio error</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="scroll-reveal"
+                    style="margin-top: var(--spacing-2xl); margin-bottom: var(--spacing-2xl);">
+                    <h2>Code Examples</h2>
+
+                    <div class="grid grid-2">
+                        <div class="card">
+                            <h4>Python</h4>
+                            <div class="code-block">
+                                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                <code>import requests
+
+url = "http://localhost:8000/relay/sms"
+headers = {
+    "X-Proxy-Auth": "your_api_key",
+    "Content-Type": "application/json"
+}
+data = {
+    "To": "+1234567890",
+    "Body": "Hello World"
+}
+
+response = requests.post(url, headers=headers, json=data)
+print(response.json())</code>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h4>JavaScript (Node.js)</h4>
+                            <div class="code-block">
+                                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                <code>const axios = require('axios');
+
+const response = await axios.post(
+  'http://localhost:8000/relay/sms',
+  {
+    To: '+1234567890',
+    Body: 'Hello World'
+  },
+  {
+    headers: {
+      'X-Proxy-Auth': 'your_api_key',
+      'Content-Type': 'application/json'
+    }
+  }
+);
+
+console.log(response.data);</code>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+</section>
+
+<script>
+    function copyCode(button) {
+        const codeBlock = button.parentElement;
+        const code = codeBlock.querySelector('code').textContent;
+
+        navigator.clipboard.writeText(code).then(() => {
+            button.textContent = 'Copied!';
+            setTimeout(() => {
+                button.textContent = 'Copy';
+            }, 2000);
+        });
+    }
+</script>
+{% endblock %}

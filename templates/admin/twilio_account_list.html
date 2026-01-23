@@ -1,0 +1,85 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}Twilio Accounts{% endblock %}
+{% block page_title %}Twilio Account Management{% endblock %}
+
+{% block content %}
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Twilio Accounts</h3>
+        <a href="{% url 'admin_dashboard:twilio_account_create' %}" class="admin-btn admin-btn-primary">
+            Add Twilio Account
+        </a>
+    </div>
+
+    <div class="admin-card-body">
+        {% if accounts %}
+        <div class="admin-table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Account</th>
+                        <th>Phone Number</th>
+                        <th>Description</th>
+                        <th>Capabilities</th>
+                        <th>Routing Rules</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for account in accounts %}
+                    <tr>
+                        <td>
+                            <div style="display: flex; flex-direction: column;">
+                                <span style="font-weight: 500;">{{ account.name|default:"—" }}</span>
+                                <code
+                                    style="font-size: 0.75rem; color: var(--admin-text-muted);">{{ account.sid }}</code>
+                            </div>
+                        </td>
+                        <td>
+                            {% if account.phone_number %}
+                            <span class="admin-badge admin-badge-primary" style="font-size: 0.75rem;">{{
+                                account.phone_number }}</span>
+                            {% else %}
+                            <span style="color: var(--admin-text-muted);">—</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ account.description|default:"—" }}</td>
+                        <td>
+                            <div style="display: flex; gap: 0.25rem; flex-wrap: wrap;">
+                                {% if account.capability_sms %}
+                                <span class="admin-badge admin-badge-info" style="font-size: 0.7rem;">SMS</span>
+                                {% endif %}
+                                {% if account.capability_voice %}
+                                <span class="admin-badge admin-badge-warning" style="font-size: 0.7rem;">Voice</span>
+                                {% endif %}
+                                {% if account.capability_whatsapp %}
+                                <span class="admin-badge admin-badge-success" style="font-size: 0.7rem;">WhatsApp</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>{{ account.routing_rules_count }}</td>
+                        <td>{{ account.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <a href="{% url 'admin_dashboard:twilio_account_edit' account.sid %}"
+                                    class="admin-btn admin-btn-sm admin-btn-secondary">Edit</a>
+                                <a href="{% url 'admin_dashboard:twilio_account_delete' account.sid %}"
+                                    class="admin-btn admin-btn-sm admin-btn-danger">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p style="text-align: center; padding: 3rem; color: var(--admin-text-muted);">
+            No Twilio accounts configured. <a href="{% url 'admin_dashboard:twilio_account_create' %}"
+                style="color: var(--admin-primary);">Add one now</a>
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

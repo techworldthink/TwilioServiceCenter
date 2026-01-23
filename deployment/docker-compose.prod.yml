@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  web:
+    build: 
+      context: ..
+      dockerfile: Dockerfile
+    command: gunicorn --bind 0.0.0.0:8000 twilio_service_center.wsgi:application
+    volumes:
+      - ../staticfiles:/app/staticfiles
+      # Mount source code for simpler hot-fixes if needed, though usually not recommended for immutable prod
+      # - ..:/app 
+    expose:
+      - 8000
+    env_file:
+      - .env.prod
+    depends_on:
+      - db
+      - redis
+    networks:
+      - relay_network
+    restart: always
+
+  db:
+    image: mysql:8.0
+    container_name: twilio_relay_db
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-twilio_relay}
+      MYSQL_USER: ${DB_USER:-relay_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secure_relay_password}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_password}
+    ports:
+      - "3307:3306" # Non-standard port as requested
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - relay_network
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: twilio_relay_redis
+    restart: always
+    expose:
+      - 6379
+    networks:
+      - relay_network
+
+volumes:
+  mysql_data:
+
+networks:
+  relay_network:
+    driver: bridge

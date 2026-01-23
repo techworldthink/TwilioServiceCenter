@@ -1,0 +1,70 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}Adjust Balance{% endblock %}
+{% block page_title %}Adjust Client Balance{% endblock %}
+
+{% block content %}
+<div class="admin-card" style="max-width: 600px;">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Adjust Balance for {{ client.name }}</h3>
+    </div>
+
+    <div class="admin-card-body">
+        <div style="padding: 1rem; background: rgba(139, 92, 246, 0.1); border-radius: 8px; margin-bottom: 1.5rem;">
+            <div style="font-size: 0.875rem; color: var(--admin-text-muted); margin-bottom: 0.5rem;">
+                Current Balance
+            </div>
+            <div style="font-size: 2rem; font-weight: 700; color: var(--admin-primary);">
+                ${{ client.balance|floatformat:2 }}
+            </div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="admin-form-group">
+                <label class="admin-form-label">Adjustment Type</label>
+                {% for radio in form.adjustment_type %}
+                <div style="margin-bottom: 0.5rem;">
+                    {{ radio }}
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="admin-form-group">
+                <label class="admin-form-label" for="{{ form.amount.id_for_label }}">
+                    Amount (USD) *
+                </label>
+                {{ form.amount }}
+                {% if form.amount.help_text %}
+                <span class="admin-form-help">{{ form.amount.help_text }}</span>
+                {% endif %}
+                {% if form.amount.errors %}
+                {% for error in form.amount.errors %}
+                <span class="admin-form-error">{{ error }}</span>
+                {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="admin-form-group">
+                <label class="admin-form-label" for="{{ form.note.id_for_label }}">
+                    Note (Optional)
+                </label>
+                {{ form.note }}
+                {% if form.note.help_text %}
+                <span class="admin-form-help">{{ form.note.help_text }}</span>
+                {% endif %}
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button type="submit" class="admin-btn admin-btn-primary">
+                    Adjust Balance
+                </button>
+                <a href="{% url 'admin_dashboard:client_list' %}" class="admin-btn admin-btn-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

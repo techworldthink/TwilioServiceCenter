@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Twilio Service Center{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-card {
+        background: var(--gradient-primary);
+        color: white;
+        padding: var(--spacing-lg);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .stat-value {
+        font-size: var(--font-size-4xl);
+        font-weight: 800;
+        margin-bottom: var(--spacing-xs);
+    }
+
+    .stat-label {
+        font-size: var(--font-size-sm);
+        opacity: 0.9;
+    }
+
+    .table-container {
+        overflow-x: auto;
+        background: var(--color-bg-glass);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-lg);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th {
+        text-align: left;
+        padding: var(--spacing-sm);
+        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        color: var(--color-text-secondary);
+        font-weight: 600;
+    }
+
+    td {
+        padding: var(--spacing-sm);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    tr:hover {
+        background: rgba(102, 126, 234, 0.05);
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--radius-sm);
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+    }
+
+    .badge-success {
+        background: var(--gradient-success);
+        color: var(--color-bg-primary);
+    }
+
+    .badge-warning {
+        background: var(--gradient-warning);
+        color: var(--color-bg-primary);
+    }
+
+    .badge-error {
+        background: var(--gradient-secondary);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="animate-fade-in-up" style="margin-bottom: var(--spacing-xl);">
+            Client <span class="text-gradient">Dashboard</span>
+        </h1>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-4 mb-5 scroll-reveal">
+            <div class="stat-card" style="background: var(--gradient-primary);">
+                <div class="stat-value">${{ balance|default:"0.00" }}</div>
+                <div class="stat-label">Current Balance</div>
+            </div>
+
+            <div class="stat-card" style="background: var(--gradient-accent);">
+                <div class="stat-value">{{ messages_sent|default:"0" }}</div>
+                <div class="stat-label">Messages Sent Today</div>
+            </div>
+
+            <div class="stat-card" style="background: var(--gradient-success);">
+                <div class="stat-value">{{ success_rate|default:"99.9" }}%</div>
+                <div class="stat-label">Success Rate</div>
+            </div>
+
+            <div class="stat-card" style="background: var(--gradient-warning);">
+                <div class="stat-value">{{ api_keys_count|default:"0" }}</div>
+                <div class="stat-label">Active API Keys</div>
+            </div>
+        </div>
+
+        <!-- API Keys Section -->
+        <div class="card scroll-reveal mb-4">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 class="card-title" style="margin: 0;">API Keys</h3>
+                <a href="/admin/relay/apikey/add/" class="btn btn-primary btn-sm">Generate New Key</a>
+            </div>
+
+            <div class="table-container"
+                style="background: transparent; border: none; padding: 0; margin-top: var(--spacing-md);">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Key Prefix</th>
+                            <th>Description</th>
+                            <th>Created</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if api_keys %}
+                        {% for key in api_keys %}
+                        <tr>
+                            <td><code>{{ key.key_prefix }}</code></td>
+                            <td>{{ key.description|default:"No description" }}</td>
+                            <td>{{ key.created_at|date:"M d, Y" }}</td>
+                            <td><span class="badge badge-success">Active</span></td>
+                            <td>
+                                <a href="/admin/relay/apikey/{{ key.id }}/change/"
+                                    style="color: var(--color-accent-cyan);">Edit</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="5"
+                                style="text-align: center; color: var(--color-text-muted); padding: var(--spacing-xl);">
+                                No API keys found. <a href="/admin/relay/apikey/add/">Create your first API key</a>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="card scroll-reveal">
+            <div class="card-header">
+                <h3 class="card-title">Recent Transactions</h3>
+            </div>
+
+            <div class="table-container"
+                style="background: transparent; border: none; padding: 0; margin-top: var(--spacing-md);">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Balance After</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if transactions %}
+                        {% for txn in transactions %}
+                        <tr>
+                            <td>{{ txn.created_at|date:"M d, Y H:i" }}</td>
+                            <td>{{ txn.type }}</td>
+                            <td>${{ txn.amount }}</td>
+                            <td>${{ txn.balance_after }}</td>
+                            <td>
+                                {% if txn.status == 'completed' %}
+                                <span class="badge badge-success">Completed</span>
+                                {% elif txn.status == 'pending' %}
+                                <span class="badge badge-warning">Pending</span>
+                                {% else %}
+                                <span class="badge badge-error">Failed</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="5"
+                                style="text-align: center; color: var(--color-text-muted); padding: var(--spacing-xl);">
+                                No transactions yet. Start sending messages to see activity here.
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-3 mt-5 scroll-reveal">
+            <a href="{% url 'api_docs' %}" class="card" style="text-decoration: none; color: inherit;">
+                <div style="font-size: var(--font-size-3xl); margin-bottom: var(--spacing-sm);">📚</div>
+                <h4>View API Docs</h4>
+                <p style="margin: 0;">Learn how to integrate with our API</p>
+            </a>
+
+            <a href="/admin/relay/client/" class="card" style="text-decoration: none; color: inherit;">
+                <div style="font-size: var(--font-size-3xl); margin-bottom: var(--spacing-sm);">⚙️</div>
+                <h4>Manage Account</h4>
+                <p style="margin: 0;">Update your account settings</p>
+            </a>
+
+            <a href="/admin/relay/routingrule/" class="card" style="text-decoration: none; color: inherit;">
+                <div style="font-size: var(--font-size-3xl); margin-bottom: var(--spacing-sm);">🔄</div>
+                <h4>Routing Rules</h4>
+                <p style="margin: 0;">Configure message routing</p>
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

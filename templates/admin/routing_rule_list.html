@@ -1,0 +1,64 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}Routing Rules{% endblock %}
+{% block page_title %}Routing Rule Management{% endblock %}
+
+{% block content %}
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Routing Rules</h3>
+        <a href="{% url 'admin_dashboard:routing_rule_create' %}" class="admin-btn admin-btn-primary">
+            Add Routing Rule
+        </a>
+    </div>
+
+    <div class="admin-card-body">
+        <div class="admin-alert admin-alert-info">
+            ℹ️ Rules are evaluated in order of priority (lower number = higher priority)
+        </div>
+
+        {% if rules %}
+        <div class="admin-table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Priority</th>
+                        <th>Pattern</th>
+                        <th>Twilio Account</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rule in rules %}
+                    <tr>
+                        <td>
+                            <span class="admin-badge admin-badge-info">{{ rule.priority }}</span>
+                        </td>
+                        <td><code
+                                style="background: rgba(139, 92, 246, 0.1); padding: 0.25rem 0.5rem; border-radius: 4px;">{{ rule.pattern }}</code>
+                        </td>
+                        <td>{{ rule.account.sid }}</td>
+                        <td>{{ rule.description|default:"—" }}</td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <a href="{% url 'admin_dashboard:routing_rule_edit' rule.pk %}"
+                                    class="admin-btn admin-btn-sm admin-btn-secondary">Edit</a>
+                                <a href="{% url 'admin_dashboard:routing_rule_delete' rule.pk %}"
+                                    class="admin-btn admin-btn-sm admin-btn-danger">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p style="text-align: center; padding: 3rem; color: var(--admin-text-muted);">
+            No routing rules configured. <a href="{% url 'admin_dashboard:routing_rule_create' %}"
+                style="color: var(--admin-primary);">Create one now</a>
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
