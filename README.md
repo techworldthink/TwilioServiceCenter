@@ -301,7 +301,8 @@ For issues and questions, please open a GitHub issue.
 
 
 
-docker-compose -f deployment/docker-compose.prod.yml exec web python manage.py createsuperuser
+docker-compose -f docker-compose.prod.yml exec web python manage.py createsuperuser
 
 
-
+twilioadmin
+Passw0rd@123
