@@ -327,9 +327,6 @@ class APIKeyGenerateView(StaffRequiredMixin, View):
         return render(request, 'admin/apikey_generate.html', {'form': form})
 
 
-        return render(request, 'admin/apikey_generate.html', {'form': form})
-
-
 class APIKeyUpdateView(StaffRequiredMixin, UpdateView):
     """Update an existing API key"""
     model = APIKey
