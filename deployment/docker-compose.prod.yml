@@ -27,11 +27,13 @@ services:
     image: mysql:8.0
     container_name: twilio_relay_db
     restart: always
-    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     env_file:
       - .env.prod
-    # Environment variables here would override .env.prod, but are not needed if the file is correct.
-    # We remove the explicit definitions to force using the file.
     ports:
       - "3307:3306" # Non-standard port as requested
     volumes:

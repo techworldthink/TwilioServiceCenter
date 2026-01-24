@@ -11,12 +11,18 @@ echo "Starting Deployment..."
 # 1. Navigate to project root (assuming script is in deployment/)
 cd "$(dirname "$0")/.."
 
-# 2. Check for .env.prod
+# 2. Check for .env.prod and Export Variables
 if [ ! -f deployment/.env.prod ]; then
     echo "Error: deployment/.env.prod file not found!"
     echo "Please copy deployment/.env.prod.example to deployment/.env.prod and configure it."
     exit 1
 fi
+
+# Load variables into shell for docker-compose substitution
+echo "Loading environment variables..."
+set -a
+source deployment/.env.prod
+set +a
 
 # 3. Build and Start Containers
 echo "Building and starting containers..."
