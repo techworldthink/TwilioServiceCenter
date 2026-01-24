@@ -28,6 +28,7 @@ services:
     image: mysql:8.0
     container_name: twilio_relay_db
     restart: always
+    command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}

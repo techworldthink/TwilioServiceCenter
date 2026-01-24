@@ -15,10 +15,17 @@ cd "$(dirname "$0")/.."
 echo "Pulling latest changes from git..."
 git pull
 
+# Load variables for substitution in 'down -v'
+if [ -f deployment/.env.prod ]; then
+    set -a
+    source deployment/.env.prod
+    set +a
+fi
+
 # 3. Executing deployment script
 echo "Tearing down old containers and volumes (to ensure DB password sync)..."
-# This is aggressive but necessary if the DB password changed or failed Init
-docker-compose -f deployment/docker-compose.prod.yml down -v
+# Explicitly use the env file to avoid warnings during cleanup
+docker-compose --env-file deployment/.env.prod -f deployment/docker-compose.prod.yml down -v
 
 echo "Executing deployment script..."
 sudo ./deployment/deploy.sh
