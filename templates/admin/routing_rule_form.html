@@ -13,6 +13,23 @@
         <form method="post">
             {% csrf_token %}
 
+            <div class="admin-alert admin-alert-info admin-alert-static" style="margin-bottom: 2rem;">
+                <h4 style="margin-top: 0; font-size: 1rem;">How Routing Rules Work</h4>
+                <p style="margin-bottom: 0.5rem; font-size: 0.9rem;">
+                    Routing rules determine which Twilio Account is used when sending a message or making a call to a
+                    specific <strong>destination number</strong>.
+                </p>
+                <ul style="font-size: 0.9rem; padding-left: 1.25rem; margin-bottom: 0;">
+                    <li><strong>Priority:</strong> Rules are checked in order (Lowest number first).</li>
+                    <li><strong>Match Type:</strong> Choose "Starts with" for country codes (e.g., +1) or "Exact match"
+                        for specific numbers.</li>
+                    <li><strong>Outcome:</strong> The system picks the first matching account to process the request.
+                    </li>
+                    <li style="color: var(--admin-warning); margin-top: 0.25rem;"><strong>Note:</strong> These rules
+                        are <strong>ignored</strong> if the used API Key has a "Forced Account" setting.</li>
+                </ul>
+            </div>
+
             <div class="admin-form-group">
                 <label class="admin-form-label" for="{{ form.priority.id_for_label }}">
                     Priority *
@@ -28,7 +45,31 @@
                 {% endif %}
             </div>
 
+            <!-- Match Type Selection -->
             <div class="admin-form-group">
+                <label class="admin-form-label" for="{{ form.match_type.id_for_label }}">
+                    Match Type
+                </label>
+                {{ form.match_type }}
+                <span class="admin-form-help">{{ form.match_type.help_text }}</span>
+            </div>
+
+            <!-- Simple Pattern Input -->
+            <div class="admin-form-group" id="simple-pattern-group">
+                <label class="admin-form-label" for="{{ form.simple_pattern.id_for_label }}">
+                    {{ form.simple_pattern.label }} *
+                </label>
+                {{ form.simple_pattern }}
+                <span class="admin-form-help">{{ form.simple_pattern.help_text }}</span>
+                {% if form.simple_pattern.errors %}
+                {% for error in form.simple_pattern.errors %}
+                <span class="admin-form-error">{{ error }}</span>
+                {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- Advanced Regex Input (Hidden by default) -->
+            <div class="admin-form-group" id="regex-pattern-group" style="display: none;">
                 <label class="admin-form-label" for="{{ form.pattern.id_for_label }}">
                     Pattern (Regex) *
                 </label>
@@ -79,4 +120,31 @@
         </form>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const matchTypeSelect = document.getElementById('id_match_type');
+        const simpleGroup = document.getElementById('simple-pattern-group');
+        const regexGroup = document.getElementById('regex-pattern-group');
+
+        function updateVisibility() {
+            const value = matchTypeSelect.value;
+            if (value === 'regex') {
+                simpleGroup.style.display = 'none';
+                regexGroup.style.display = 'block';
+            } else {
+                simpleGroup.style.display = 'block';
+                regexGroup.style.display = 'none';
+            }
+        }
+
+        // Initial state
+        if (matchTypeSelect) {
+            updateVisibility();
+            matchTypeSelect.addEventListener('change', updateVisibility);
+        }
+    });
+</script>
 {% endblock %}

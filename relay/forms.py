@@ -95,6 +95,30 @@ class TwilioAccountForm(forms.ModelForm):
 class RoutingRuleForm(forms.ModelForm):
     """Form for creating and editing routing rules"""
     
+    MATCH_TYPE_CHOICES = [
+        ('starts_with', 'Starts with'),
+        ('exact', 'Exact match'),
+        ('regex', 'Advanced Regex'),
+    ]
+
+    match_type = forms.ChoiceField(
+        choices=MATCH_TYPE_CHOICES,
+        initial='starts_with',
+        widget=forms.Select(attrs={'class': 'admin-form-control', 'id': 'id_match_type'}),
+        help_text='Choose how to match the phone number'
+    )
+
+    simple_pattern = forms.CharField(
+        required=False,
+        label='Recipient Phone Number / Prefix',
+        widget=forms.TextInput(attrs={
+            'class': 'admin-form-control',
+            'placeholder': '+1',
+            'id': 'id_simple_pattern'
+        }),
+        help_text='Enter the destination number or prefix (e.g., +1 for US) to route through this account.'
+    )
+
     class Meta:
         model = RoutingRule
         fields = ['priority', 'pattern', 'account', 'description']
@@ -107,6 +131,7 @@ class RoutingRuleForm(forms.ModelForm):
             'pattern': forms.TextInput(attrs={
                 'class': 'admin-form-control',
                 'placeholder': r'^\+1.*',
+                'id': 'id_pattern'
             }),
             'account': forms.Select(attrs={
                 'class': 'admin-form-control',
@@ -123,13 +148,77 @@ class RoutingRuleForm(forms.ModelForm):
             'description': 'Optional description for this rule',
         }
     
-    def clean_pattern(self):
-        pattern = self.cleaned_data.get('pattern')
-        try:
-            re.compile(pattern)
-        except re.error as e:
-            raise forms.ValidationError(f'Invalid regex pattern: {e}')
-        return pattern
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make pattern not required since we might generate it
+        self.fields['pattern'].required = False
+        
+        # If editing, try to deduce match type
+        if self.instance.pk and self.instance.pattern:
+            pattern = self.instance.pattern
+            if pattern.startswith('^') and pattern.endswith('.*') and '\\' in pattern:
+                # Likely "starts_with" -> ^\+1.*
+                raw = pattern[2:-2].replace('\\', '')
+                self.fields['match_type'].initial = 'starts_with'
+                self.fields['simple_pattern'].initial = raw
+            elif pattern.startswith('^') and pattern.endswith('$') and '\\' in pattern:
+                # Likely "exact" -> ^\+12345$
+                raw = pattern[1:-1].replace('\\', '')
+                self.fields['match_type'].initial = 'exact'
+                self.fields['simple_pattern'].initial = raw
+            else:
+                self.fields['match_type'].initial = 'regex'
+
+    def clean(self):
+        cleaned_data = super().clean()
+        match_type = cleaned_data.get('match_type')
+        simple_pattern = cleaned_data.get('simple_pattern')
+        pattern = cleaned_data.get('pattern')
+
+        if match_type == 'regex':
+            if not pattern:
+                self.add_error('pattern', 'This field is required when using Advanced Regex.')
+            # Validate regex
+            try:
+                if pattern:
+                    re.compile(pattern)
+            except re.error as e:
+                self.add_error('pattern', f'Invalid regex pattern: {e}')
+        else:
+            if not simple_pattern:
+                self.add_error('simple_pattern', 'This field is required.')
+            else:
+                # Escape special regex characters in the user input
+                safe_input = re.escape(simple_pattern)
+                
+                if match_type == 'starts_with':
+                    cleaned_data['pattern'] = f'^{safe_input}.*'
+                elif match_type == 'exact':
+                    cleaned_data['pattern'] = f'^{safe_input}$'
+        
+        return cleaned_data
+
+
+
+class APIKeyUpdateForm(forms.ModelForm):
+    """Form for editing existing API keys"""
+    
+    class Meta:
+        model = APIKey
+        fields = ['client', 'forced_account', 'allow_sms', 'allow_voice', 'allow_whatsapp', 'is_active']
+        widgets = {
+            'client': forms.Select(attrs={'class': 'admin-form-control'}),
+            'forced_account': forms.Select(attrs={'class': 'admin-form-control'}),
+            'allow_sms': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'allow_voice': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'allow_whatsapp': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+        help_texts = {
+            'client': 'Client associated with this key',
+            'forced_account': 'Force this key to route via specific account (Overrides routing rules)',
+            'is_active': 'Uncheck to temporarily disable this key',
+        }
 
 
 class APIKeyGenerateForm(forms.Form):

@@ -131,7 +131,8 @@
         }
 
         // Auto-hide alerts after 5 seconds
-        document.querySelectorAll('.admin-alert').forEach(alert => {
+
+        document.querySelectorAll('.admin-alert:not(.admin-alert-static)').forEach(alert => {
             setTimeout(() => {
                 alert.style.opacity = '0';
                 setTimeout(() => alert.remove(), 300);

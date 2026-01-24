@@ -1,17 +1,17 @@
 {% extends 'admin/admin_base.html' %}
 
-{% block title %}Generate API Key{% endblock %}
-{% block page_title %}Generate New API Key{% endblock %}
+{% block title %}Edit API Key{% endblock %}
+{% block page_title %}Edit API Key Settings{% endblock %}
 
 {% block content %}
 <div class="admin-card" style="max-width: 600px;">
     <div class="admin-card-header">
-        <h3 class="admin-card-title">Generate API Key</h3>
+        <h3 class="admin-card-title">Edit API Key ({{ object.prefix }}...)</h3>
     </div>
 
     <div class="admin-card-body">
         <div class="admin-alert admin-alert-info">
-            ℹ️ The API key will be shown only once. Make sure to copy it immediately.
+            ℹ️ You cannot change the API key string itself. Revoke and generate a new one if the secret is compromised.
         </div>
 
         <form method="post">
@@ -19,7 +19,7 @@
 
             <div class="admin-form-group">
                 <label class="admin-form-label" for="{{ form.client.id_for_label }}">
-                    Client *
+                    Client
                 </label>
                 {{ form.client }}
                 {% if form.client.help_text %}
@@ -29,16 +29,6 @@
                 {% for error in form.client.errors %}
                 <span class="admin-form-error">{{ error }}</span>
                 {% endfor %}
-                {% endif %}
-            </div>
-
-            <div class="admin-form-group">
-                <label class="admin-form-label" for="{{ form.prefix.id_for_label }}">
-                    Custom Prefix (Optional)
-                </label>
-                {{ form.prefix }}
-                {% if form.prefix.help_text %}
-                <span class="admin-form-help">{{ form.prefix.help_text }}</span>
                 {% endif %}
             </div>
 
@@ -54,6 +44,15 @@
                         Rules</strong> for this API Key. Use this for specific departments (e.g., Marketing) that must
                     always use a specific Sender ID.
                 </div>
+            </div>
+
+            <div class="admin-form-group" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 2rem;">
+                {{ form.is_active }}
+                <label class="admin-form-label" style="margin-bottom: 0;" for="{{ form.is_active.id_for_label }}">
+                    Active
+                </label>
+                <span class="admin-form-help" style="margin-top: 0; margin-left: 0.5rem;">Uncheck to temporarily disable
+                    this key</span>
             </div>
 
             <h4
@@ -81,7 +80,7 @@
 
             <div style="display: flex; gap: 1rem; margin-top: 2rem;">
                 <button type="submit" class="admin-btn admin-btn-primary">
-                    Generate API Key
+                    Update Settings
                 </button>
                 <a href="{% url 'admin_dashboard:apikey_list' %}" class="admin-btn admin-btn-secondary">
                     Cancel

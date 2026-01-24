@@ -11,7 +11,7 @@ from decimal import Decimal
 from .models import Client, APIKey, TwilioAccount, RoutingRule
 from .forms import (
     ClientForm, TwilioAccountForm, RoutingRuleForm, 
-    APIKeyGenerateForm, BalanceAdjustmentForm
+    APIKeyGenerateForm, APIKeyUpdateForm, BalanceAdjustmentForm
 )
 from .decorators import ajax_required
 
@@ -325,6 +325,21 @@ class APIKeyGenerateView(StaffRequiredMixin, View):
             })
         
         return render(request, 'admin/apikey_generate.html', {'form': form})
+
+
+        return render(request, 'admin/apikey_generate.html', {'form': form})
+
+
+class APIKeyUpdateView(StaffRequiredMixin, UpdateView):
+    """Update an existing API key"""
+    model = APIKey
+    form_class = APIKeyUpdateForm
+    template_name = 'admin/apikey_form.html'
+    success_url = reverse_lazy('admin_dashboard:apikey_list')
+    
+    def form_valid(self, form):
+        messages.success(self.request, f'API key settings for "{form.instance.prefix}..." updated successfully!')
+        return super().form_valid(form)
 
 
 class APIKeyRevokeView(StaffRequiredMixin, View):

@@ -29,6 +29,7 @@ urlpatterns = [
     # API Key Management
     path('api-keys/', admin_views.APIKeyListView.as_view(), name='apikey_list'),
     path('api-keys/generate/', admin_views.APIKeyGenerateView.as_view(), name='apikey_generate'),
+    path('api-keys/<int:pk>/edit/', admin_views.APIKeyUpdateView.as_view(), name='apikey_edit'),
     path('api-keys/<int:pk>/revoke/', admin_views.APIKeyRevokeView.as_view(), name='apikey_revoke'),
     
     # System Monitoring
