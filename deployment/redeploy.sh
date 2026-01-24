@@ -17,6 +17,6 @@ git pull
 
 # 3. Executing deployment script
 echo "Executing deployment script..."
-./deployment/deploy.sh
+sudo ./deployment/deploy.sh
 
 echo "Redeployment Sequence Complete!"
