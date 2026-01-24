@@ -37,3 +37,4 @@ docker-compose -f deployment/docker-compose.prod.yml exec -T web python manage.p
 echo "Deployment Complete!"
 echo "App is running on port 8085"
 echo "Database (MySQL) is on port 3307"
+
