@@ -22,9 +22,20 @@ fi
 echo "Building and starting containers..."
 docker-compose -f deployment/docker-compose.prod.yml up -d --build
 
-# 4. Wait for Database (simple sleep, or rely on depends_on/healthcheck)
-echo "Waiting for services to stabilize..."
-sleep 10
+# 4. Wait for Database to be ready
+echo "Waiting for database to initialize (this may take a minute)..."
+# Simple wait loop - try to reach the port
+count=0
+while [ $count -lt 30 ]; do
+    if docker-compose -f deployment/docker-compose.prod.yml exec -T db mysqladmin ping -h localhost --silent; then
+        echo "Database is up!"
+        break
+    fi
+    echo "Waiting for DB..."
+    sleep 2
+    count=$((count+1))
+done
+sleep 5 # extra safety buffer after ping succeeds
 
 # 5. Run Migrations
 echo "Running database migrations..."
