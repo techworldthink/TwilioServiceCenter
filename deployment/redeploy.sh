@@ -16,6 +16,10 @@ echo "Pulling latest changes from git..."
 git pull
 
 # 3. Executing deployment script
+echo "Tearing down old containers and volumes (to ensure DB password sync)..."
+# This is aggressive but necessary if the DB password changed or failed Init
+docker-compose -f deployment/docker-compose.prod.yml down -v
+
 echo "Executing deployment script..."
 sudo ./deployment/deploy.sh
 
