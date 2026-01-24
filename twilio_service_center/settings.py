@@ -20,6 +20,18 @@ DEBUG = os.environ.get('DEBUG', '1') == '1'  # Default to True for development
 
 ALLOWED_HOSTS = ['*']
 
+# CSRF Trusted Origins for production
+CSRF_TRUSTED_ORIGINS = [
+    "https://twilio.uzhavoorlive.com",
+    "http://twilio.uzhavoorlive.com"
+]
+
+# Proxy headers for SSL termination
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
+
+
 
 # Application definition
 

@@ -1,0 +1,138 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Twilio Service Center</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Admin CSS -->
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+
+    <style>
+        .login-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 440px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+
+        .login-header p {
+            color: var(--admin-text-muted);
+            font-size: 0.875rem;
+        }
+
+        .errorlist {
+            list-style: none;
+            color: var(--admin-danger);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 8px;
+            border: 1px solid var(--admin-danger);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="admin-body">
+    <div class="login-wrapper">
+        <div class="admin-card login-card">
+            <div class="login-header">
+                <h1>Admin Login</h1>
+                <p>Welcome back! Please enter your details.</p>
+            </div>
+
+            {% if form.errors and not form.non_field_errors %}
+            <p class="admin-form-error">
+                Please correct the errors below.
+            </p>
+            {% endif %}
+
+            {% if form.non_field_errors %}
+            {% for error in form.non_field_errors %}
+            <div class="admin-alert admin-alert-error">
+                {{ error }}
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <form action="{{ app_path }}" method="post" id="login-form">
+                {% csrf_token %}
+
+                <div class="admin-form-group">
+                    <label class="admin-form-label" for="id_username">Username</label>
+                    <input type="text" name="username" autofocus required id="id_username" class="admin-form-control"
+                        placeholder="Enter your username">
+                    {% if form.username.errors %}
+                    <span class="admin-form-error">{{ form.username.errors }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="admin-form-group">
+                    <label class="admin-form-label" for="id_password">Password</label>
+                    <input type="password" name="password" required id="id_password" class="admin-form-control"
+                        placeholder="••••••••">
+                    {% if form.password.errors %}
+                    <span class="admin-form-error">{{ form.password.errors }}</span>
+                    {% endif %}
+                </div>
+
+                <div style="margin-top: 2rem;">
+                    <button type="submit" class="admin-btn admin-btn-primary"
+                        style="width: 100%; justify-content: center; padding: 1rem;">
+                        Sign In
+                    </button>
+                </div>
+            </form>
+
+            <div style="margin-top: 1.5rem; text-align: center;">
+                <a href="/" style="color: var(--admin-text-muted); text-decoration: none; font-size: 0.875rem;">
+                    &larr; Back to homepage
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
