@@ -23,9 +23,9 @@ if [ -f deployment/.env.prod ]; then
 fi
 
 # 3. Executing deployment script
-echo "Tearing down old containers and volumes (to ensure DB password sync)..."
-# Explicitly use the env file to avoid warnings during cleanup
-docker-compose --env-file deployment/.env.prod -f deployment/docker-compose.prod.yml down -v
+echo "Stopping old containers..."
+# Removed -v to ensure data (users, keys, etc.) is kept during updates
+docker-compose --env-file deployment/.env.prod -f deployment/docker-compose.prod.yml down
 
 echo "Executing deployment script..."
 sudo ./deployment/deploy.sh
