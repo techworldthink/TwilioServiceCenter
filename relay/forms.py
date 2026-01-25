@@ -50,8 +50,8 @@ class TwilioAccountForm(forms.ModelForm):
             }),
             'sid': forms.TextInput(attrs={
                 'class': 'admin-form-control',
-                'placeholder': 'ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-                'maxlength': '34',
+                'placeholder': 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+                'maxlength': '64',
             }),
             'phone_number': forms.TextInput(attrs={
                 'class': 'admin-form-control',
@@ -67,16 +67,13 @@ class TwilioAccountForm(forms.ModelForm):
         }
         help_texts = {
             'name': 'A friendly name to identify this account easily',
-            'sid': 'Your Twilio Account SID (starts with AC)',
+            'sid': 'Your Twilio Account SID',
             'phone_number': 'Primary Twilio phone number associated with this account',
         }
     
     def clean_sid(self):
         sid = self.cleaned_data.get('sid')
-        if sid and not sid.startswith('AC'):
-            raise forms.ValidationError('Twilio Account SID must start with "AC"')
-        if sid and len(sid) != 34:
-            raise forms.ValidationError('Twilio Account SID must be exactly 34 characters')
+        # Restriction removed: No longer checking for "AC" prefix or fixed length
         return sid
     
     def save(self, commit=True):

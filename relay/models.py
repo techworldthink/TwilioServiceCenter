@@ -91,7 +91,7 @@ class APIKey(models.Model):
         self.save()
 
 class TwilioAccount(models.Model):
-    sid = models.CharField(max_length=34, primary_key=True)
+    sid = models.CharField(max_length=64, primary_key=True)
     encrypted_token = models.TextField()
     name = models.CharField(max_length=255, blank=True, help_text="Friendly name for identification")
     phone_number = models.CharField(max_length=20, blank=True, help_text="Primary Twilio phone number for this account")
