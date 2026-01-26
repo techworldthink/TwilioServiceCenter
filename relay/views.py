@@ -137,7 +137,20 @@ class StandardWhatsAppView(APIView):
             
         data = serializer.validated_data
         
-        # Format numbers for WhatsApp
+        # 1. Billing
+        estimated_cost = decimal.Decimal('0.0050')
+        success, balance = BillingService.deduct_balance(client_id, estimated_cost)
+        if not success:
+            return Response({'error': 'Insufficient Funds'}, status=status.HTTP_402_PAYMENT_REQUIRED)
+
+        # 2. Routing (Route by raw number, excluding 'whatsapp:' prefix)
+        raw_to_number = data['To'].replace('whatsapp:', '')
+        account = RouterService.get_account_for_number(raw_to_number, api_key)
+        if not account:
+            BillingService.deduct_balance(client_id, -estimated_cost)
+            return Response({'error': 'No Route Found'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        # 3. Format numbers for WhatsApp
         to_num = data['To']
         if not to_num.startswith('whatsapp:'):
             to_num = f"whatsapp:{to_num}"
@@ -148,19 +161,6 @@ class StandardWhatsAppView(APIView):
              
         if from_num and not from_num.startswith('whatsapp:'):
             from_num = f"whatsapp:{from_num}"
-            
-        # 1. Billing (WhatsApp might be more expensive, configurable?)
-        estimated_cost = decimal.Decimal('0.0050') 
-        success, balance = BillingService.deduct_balance(client_id, estimated_cost)
-        if not success:
-            return Response({'error': 'Insufficient Funds'}, status=status.HTTP_402_PAYMENT_REQUIRED)
-            
-        # 2. Routing (Route by raw number, excluding 'whatsapp:' prefix)
-        raw_to_number = data['To'].replace('whatsapp:', '')
-        account = RouterService.get_account_for_number(raw_to_number, api_key)
-        if not account:
-            BillingService.deduct_balance(client_id, -estimated_cost)
-            return Response({'error': 'No Route Found'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
             
         try:
             token = RouterService.get_decrypted_token(account)
@@ -220,10 +220,9 @@ class StandardCallView(APIView):
             client = TwilioClient(account.sid, token)
             
             # Determine From number
-            from_number = data['From']
-            # CallSerializer requires From, but logic might change or we might want to override if empty string passed?
-            # Actually CallSerializer has required=True for From. 
-            # But let's be safe.
+            from_number = data.get('From')
+            if not from_number and account.phone_number:
+                from_number = account.phone_number
             
             create_kwargs = {
                 'to': data['To'],
