@@ -36,10 +36,15 @@ class RouterService:
 class LogService:
     @staticmethod
     def log_communication(client, api_key, account, comm_type, to_num, from_num, body, twilio_sid='', status='pending', cost=0, error=''):
+        # Handle both model instances and objects with 'id' attribute (like cached KeyStruct)
+        client_id = client.id if hasattr(client, 'id') else client
+        api_key_id = api_key.id if hasattr(api_key, 'id') else api_key
+        account_id = account.sid if hasattr(account, 'sid') else (account.id if hasattr(account, 'id') else account)
+        
         return CommunicationLog.objects.create(
-            client=client,
-            api_key=api_key,
-            account=account,
+            client_id=client_id,
+            api_key_id=api_key_id,
+            account_id=account_id,
             communication_type=comm_type,
             to_number=to_num,
             from_number=from_num,
