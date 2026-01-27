@@ -54,20 +54,20 @@ def test_endpoint(url, api_key):
             print(f"\nParsed JSON:")
             print(f"  {json.dumps(json_data, indent=2)}")
         except json.JSONDecodeError as e:
-            print(f"\n❌ JSON Parse Error: {e}")
+            print(f"\nJSON Parse Error: {e}")
             print(f"   This means the server returned HTML or invalid JSON")
             print(f"   First 200 chars: {response.text[:200]}")
             
             # Check if it's HTML
             if response.text.strip().startswith('<'):
-                print(f"\n   ⚠️  Server returned HTML (likely an error page)")
+                print(f"\n Server returned HTML (likely an error page)")
                 print(f"   This usually happens when:")
                 print(f"      - DEBUG=False and there's an unhandled exception")
                 print(f"      - Middleware is raising an exception")
                 print(f"      - Database/Redis connection issues")
                 
     except requests.exceptions.RequestException as e:
-        print(f"\n❌ Request Error: {e}")
+        print(f"\nRequest Error: {e}")
         return False
     
     return True

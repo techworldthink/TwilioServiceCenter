@@ -11,6 +11,6 @@ try:
     c = Client.objects.get(name='TestClient')
     c.balance = 10.0
     c.save()
-    print(f"✅ Funds Added! New Balance: {c.balance}")
+    print(f"Funds Added! New Balance: {c.balance}")
 except Exception as e:
-    print(f"❌ Error: {e}")
+    print(f"Error: {e}")
