@@ -12,30 +12,26 @@
                 <select name="type" class="admin-form-control" style="width: 120px;" onchange="this.form.submit()">
                     <option value="">All Types</option>
                     {% for type_code, type_name in comm_types %}
-                    <option value="{{ type_code }}" {% if request.GET.type==type_code %}selected{% endif %}>{{ type_name
-                        }}</option>
+                    <option value="{{ type_code }}" {% if request.GET.type == type_code %}selected{% endif %}>{{ type_name }}</option>
                     {% endfor %}
                 </select>
 
                 <select name="client" class="admin-form-control" style="width: 150px;" onchange="this.form.submit()">
                     <option value="">All Clients</option>
                     {% for client in clients %}
-                    <option value="{{ client.id }}" {% if request.GET.client==client.id|stringformat:"s" %}selected{%
-                        endif %}>{{ client.name }}</option>
+                    <option value="{{ client.id }}" {% if request.GET.client == client.id|stringformat:"s" %}selected{% endif %}>{{ client.name }}</option>
                     {% endfor %}
                 </select>
 
                 <select name="status" class="admin-form-control" style="width: 120px;" onchange="this.form.submit()">
                     <option value="">All Status</option>
-                    <option value="sent" {% if request.GET.status=='sent' %}selected{% endif %}>Sent</option>
-                    <option value="delivered" {% if request.GET.status=='delivered' %}selected{% endif %}>Delivered
-                    </option>
-                    <option value="failed" {% if request.GET.status=='failed' %}selected{% endif %}>Failed</option>
-                    <option value="pending" {% if request.GET.status=='pending' %}selected{% endif %}>Pending</option>
+                    <option value="sent" {% if request.GET.status == 'sent' %}selected{% endif %}>Sent</option>
+                    <option value="delivered" {% if request.GET.status == 'delivered' %}selected{% endif %}>Delivered</option>
+                    <option value="failed" {% if request.GET.status == 'failed' %}selected{% endif %}>Failed</option>
+                    <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
                 </select>
 
-                <input type="text" name="search" placeholder="Search SID, number..." value="{{ request.GET.search }}"
-                    class="admin-form-control" style="width: 200px;">
+                <input type="text" name="search" placeholder="Search SID, number..." value="{{ request.GET.search }}" class="admin-form-control" style="width: 200px;">
                 <button type="submit" class="admin-btn admin-btn-secondary">Filter</button>
             </form>
         </div>
@@ -64,14 +60,11 @@
                         </td>
                         <td>
                             {% if log.communication_type == 'sms' %}
-                            <span class="admin-badge"
-                                style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">SMS</span>
+                            <span class="admin-badge" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">SMS</span>
                             {% elif log.communication_type == 'whatsapp' %}
-                            <span class="admin-badge"
-                                style="background: rgba(16, 185, 129, 0.1); color: #10b981;">WhatsApp</span>
+                            <span class="admin-badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">WhatsApp</span>
                             {% elif log.communication_type == 'call' %}
-                            <span class="admin-badge"
-                                style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">Voice</span>
+                            <span class="admin-badge" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">Voice</span>
                             {% endif %}
                         </td>
                         <td><strong>{{ log.client.name }}</strong></td>
@@ -79,27 +72,23 @@
                             <div style="font-size: 0.85rem;">
                                 <div><strong>To:</strong> {{ log.to_number }}</div>
                                 {% if log.from_number %}
-                                <div style="color: var(--admin-text-muted);"><strong>From:</strong> {{ log.from_number
-                                    }}</div>
+                                <div style="color: var(--admin-text-muted);"><strong>From:</strong> {{ log.from_number }}</div>
                                 {% endif %}
                             </div>
                         </td>
                         <td>
-                            <div style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
-                                title="{{ log.body }}">
+                            <div style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ log.body }}">
                                 {{ log.body }}
                             </div>
                             {% if log.twilio_sid %}
-                            <div style="font-size: 0.75rem; color: var(--admin-text-muted);">SID: {{ log.twilio_sid }}
-                            </div>
+                            <div style="font-size: 0.75rem; color: var(--admin-text-muted);">SID: {{ log.twilio_sid }}</div>
                             {% endif %}
                         </td>
                         <td>
                             {% if log.status == 'delivered' or log.status == 'completed' or log.status == 'sent' %}
                             <span class="admin-badge admin-badge-success">{{ log.status|title }}</span>
                             {% elif log.status == 'failed' or log.status == 'undelivered' %}
-                            <span class="admin-badge admin-badge-danger" title="{{ log.error_message }}">{{
-                                log.status|title }}</span>
+                            <span class="admin-badge admin-badge-danger" title="{{ log.error_message }}">{{ log.status|title }}</span>
                             {% elif log.status == 'pending' or log.status == 'queued' %}
                             <span class="admin-badge admin-badge-warning">{{ log.status|title }}</span>
                             {% else %}
@@ -116,10 +105,8 @@
         {% if is_paginated %}
         <div style="margin-top: 1.5rem; text-align: center;">
             {% if page_obj.has_previous %}
-            <a href="?page=1&type={{ request.GET.type }}&client={{ request.GET.client }}&status={{ request.GET.status }}&search={{ request.GET.search }}"
-                class="admin-btn admin-btn-sm admin-btn-secondary">First</a>
-            <a href="?page={{ page_obj.previous_page_number }}&type={{ request.GET.type }}&client={{ request.GET.client }}&status={{ request.GET.status }}&search={{ request.GET.search }}"
-                class="admin-btn admin-btn-sm admin-btn-secondary">Previous</a>
+            <a href="?page=1&type={{ request.GET.type }}&client={{ request.GET.client }}&status={{ request.GET.status }}&search={{ request.GET.search }}" class="admin-btn admin-btn-sm admin-btn-secondary">First</a>
+            <a href="?page={{ page_obj.previous_page_number }}&type={{ request.GET.type }}&client={{ request.GET.client }}&status={{ request.GET.status }}&search={{ request.GET.search }}" class="admin-btn admin-btn-sm admin-btn-secondary">Previous</a>
             {% endif %}
 
             <span style="margin: 0 1rem; color: var(--admin-text-muted);">
@@ -127,17 +114,13 @@
             </span>
 
             {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}&type={{ request.GET.type }}&client={{ request.GET.client }}&status={{ request.GET.status }}&search={{ request.GET.search }}"
-                class="admin-btn admin-btn-sm admin-btn-secondary">Next</a>
-            <a href="?page={{ page_obj.paginator.num_pages }}&type={{ request.GET.type }}&client={{ request.GET.client }}&status={{ request.GET.status }}&search={{ request.GET.search }}"
-                class="admin-btn admin-btn-sm admin-btn-secondary">Last</a>
+            <a href="?page={{ page_obj.next_page_number }}&type={{ request.GET.type }}&client={{ request.GET.client }}&status={{ request.GET.status }}&search={{ request.GET.search }}" class="admin-btn admin-btn-sm admin-btn-secondary">Next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}&type={{ request.GET.type }}&client={{ request.GET.client }}&status={{ request.GET.status }}&search={{ request.GET.search }}" class="admin-btn admin-btn-sm admin-btn-secondary">Last</a>
             {% endif %}
         </div>
         {% endif %}
         {% else %}
-        <p style="text-align: center; padding: 3rem; color: var(--admin-text-muted);">
-            No records found.
-        </p>
+        <p style="text-align: center; padding: 3rem; color: var(--admin-text-muted);">No records found.</p>
         {% endif %}
     </div>
 </div>

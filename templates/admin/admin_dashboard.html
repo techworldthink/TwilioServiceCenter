@@ -108,6 +108,50 @@
     </div>
 </div>
 
+<!-- Recent Communications -->
+<div class="admin-card" style="margin-top: 1.5rem;">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Recent Communications</h3>
+        <a href="{% url 'admin_dashboard:communication_history' %}"
+            class="admin-btn admin-btn-sm admin-btn-secondary">View All</a>
+    </div>
+    <div class="admin-card-body">
+        {% if recent_communications %}
+        <div class="admin-table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>To</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in recent_communications %}
+                    <tr>
+                        <td>{{ log.to_number|truncatechars:20 }}</td>
+                        <td>
+                            <span class="admin-badge admin-badge-secondary">{{ log.communication_type|upper }}</span>
+                        </td>
+                        <td>
+                            <span
+                                class="admin-badge {% if log.status == 'delivered' or log.status == 'completed' or log.status == 'sent' %}admin-badge-success{% elif log.status == 'failed' or log.status == 'undelivered' %}admin-badge-danger{% else %}admin-badge-warning{% endif %}">
+                                {{ log.status }}
+                            </span>
+                        </td>
+                        <td><small>{{ log.created_at|timesince }} ago</small></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p style="color: var(--admin-text-muted); text-align: center; padding: 2rem;">No recent communications</p>
+        {% endif %}
+    </div>
+</div>
+
 <!-- Quick Actions -->
 <div class="admin-card" style="margin-top: 1.5rem;">
     <div class="admin-card-header">
