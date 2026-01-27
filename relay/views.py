@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.conf import settings
-from .services import BillingService, RouterService
+from .services import BillingService, RouterService, LogService
 from twilio.rest import Client as TwilioClient
 import decimal
 
@@ -110,9 +110,37 @@ class StandardSMSView(APIView):
                 from_=from_number,
                 body=data['Body']
             )
+            
+            LogService.log_communication(
+                client=api_key.client,
+                api_key=api_key,
+                account=account,
+                comm_type='sms',
+                to_num=data['To'],
+                from_num=from_number,
+                body=data['Body'],
+                twilio_sid=msg.sid,
+                status=msg.status,
+                cost=estimated_cost
+            )
+            
             return Response({'status': 'sent', 'sid': msg.sid, 'cost': estimated_cost}, status=status.HTTP_200_OK)
         except Exception as e:
             BillingService.deduct_balance(client_id, -estimated_cost)
+            
+            LogService.log_communication(
+                client=api_key.client,
+                api_key=api_key,
+                account=account,
+                comm_type='sms',
+                to_num=data['To'],
+                from_num=from_number if 'from_number' in locals() else '',
+                body=data['Body'],
+                status='failed',
+                cost=0,
+                error=str(e)
+            )
+            
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class StandardWhatsAppView(APIView):
@@ -176,9 +204,37 @@ class StandardWhatsAppView(APIView):
                 create_kwargs['media_url'] = data['MediaUrl']
                 
             msg = client.messages.create(**create_kwargs)
+            
+            LogService.log_communication(
+                client=api_key.client,
+                api_key=api_key,
+                account=account,
+                comm_type='whatsapp',
+                to_num=to_num,
+                from_num=from_num if from_num else '',
+                body=data['Body'],
+                twilio_sid=msg.sid,
+                status=msg.status,
+                cost=estimated_cost
+            )
+            
             return Response({'status': 'sent', 'sid': msg.sid, 'cost': estimated_cost}, status=status.HTTP_200_OK)
         except Exception as e:
             BillingService.deduct_balance(client_id, -estimated_cost)
+            
+            LogService.log_communication(
+                client=api_key.client,
+                api_key=api_key,
+                account=account,
+                comm_type='whatsapp',
+                to_num=to_num if 'to_num' in locals() else data['To'],
+                from_num=from_num if 'from_num' in locals() else '',
+                body=data['Body'],
+                status='failed',
+                cost=0,
+                error=str(e)
+            )
+            
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class StandardCallView(APIView):
@@ -234,9 +290,37 @@ class StandardCallView(APIView):
                 create_kwargs['url'] = data['Url']
                 
             call = client.calls.create(**create_kwargs)
+            
+            LogService.log_communication(
+                client=api_key.client,
+                api_key=api_key,
+                account=account,
+                comm_type='call',
+                to_num=data['To'],
+                from_num=from_number if from_number else '',
+                body=data.get('Url', data.get('Twiml', 'Voice Call')),
+                twilio_sid=call.sid,
+                status=call.status,
+                cost=estimated_cost
+            )
+            
             return Response({'status': 'initiated', 'sid': call.sid, 'cost': estimated_cost}, status=status.HTTP_200_OK)
         except Exception as e:
             BillingService.deduct_balance(client_id, -estimated_cost)
+            
+            LogService.log_communication(
+                client=api_key.client,
+                api_key=api_key,
+                account=account,
+                comm_type='call',
+                to_num=data['To'],
+                from_num=from_number if 'from_number' in locals() else '',
+                body=data.get('Url', data.get('Twiml', 'Voice Call')),
+                status='failed',
+                cost=0,
+                error=str(e)
+            )
+            
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class TwilioMessagesView(APIView):
@@ -438,6 +522,15 @@ class WebhookView(APIView):
     # For now, let's just log it.
     def post(self, request):
         data = request.data
+        sid = data.get('MessageSid') or data.get('CallSid')
+        status_val = data.get('MessageStatus') or data.get('CallStatus')
+        error_code = data.get('ErrorCode')
+        error_message = data.get('ErrorMessage')
+        
+        if sid and status_val:
+            error_text = f"Error {error_code}: {error_message}" if error_code else ""
+            LogService.update_log_status(sid, status_val, error=error_text)
+            
         print(f"Webhook Received: {data}")
         return Response({'status': 'received'})
 

@@ -8,11 +8,12 @@ from django.http import JsonResponse
 from django.db.models import Count, Sum, Q
 from decimal import Decimal
 
-from .models import Client, APIKey, TwilioAccount, RoutingRule
+from .models import Client, APIKey, TwilioAccount, RoutingRule, CommunicationLog, AuditLog
 from .forms import (
     ClientForm, TwilioAccountForm, RoutingRuleForm, 
     APIKeyGenerateForm, APIKeyUpdateForm, BalanceAdjustmentForm
 )
+from .services import LogService
 from .decorators import ajax_required
 
 
@@ -50,6 +51,9 @@ class AdminDashboardView(StaffRequiredMixin, TemplateView):
         
         # Recent API keys
         context['recent_api_keys'] = APIKey.objects.select_related('client').order_by('-created_at')[:5]
+        
+        # Recent Communications
+        context['recent_communications'] = CommunicationLog.objects.select_related('client').order_by('-created_at')[:5]
         
         # Low balance clients (less than $10)
         context['low_balance_clients'] = Client.objects.filter(balance__lt=10).order_by('balance')[:5]
@@ -89,8 +93,14 @@ class ClientCreateView(StaffRequiredMixin, CreateView):
     success_url = reverse_lazy('admin_dashboard:client_list')
     
     def form_valid(self, form):
+        response = super().form_valid(form)
+        LogService.log_action(
+            action="Create Client",
+            details=f"Created client {form.instance.name}",
+            request=self.request
+        )
         messages.success(self.request, f'Client "{form.instance.name}" created successfully!')
-        return super().form_valid(form)
+        return response
 
 
 class ClientUpdateView(StaffRequiredMixin, UpdateView):
@@ -101,8 +111,14 @@ class ClientUpdateView(StaffRequiredMixin, UpdateView):
     success_url = reverse_lazy('admin_dashboard:client_list')
     
     def form_valid(self, form):
+        response = super().form_valid(form)
+        LogService.log_action(
+            action="Update Client",
+            details=f"Updated client {form.instance.name}",
+            request=self.request
+        )
         messages.success(self.request, f'Client "{form.instance.name}" updated successfully!')
-        return super().form_valid(form)
+        return response
 
 
 class ClientDeleteView(StaffRequiredMixin, DeleteView):
@@ -113,6 +129,11 @@ class ClientDeleteView(StaffRequiredMixin, DeleteView):
     
     def delete(self, request, *args, **kwargs):
         client = self.get_object()
+        LogService.log_action(
+            action="Delete Client",
+            details=f"Deleted client {client.name}",
+            request=request
+        )
         messages.success(request, f'Client "{client.name}" deleted successfully!')
         return super().delete(request, *args, **kwargs)
 
@@ -140,6 +161,11 @@ class ClientBalanceAdjustView(StaffRequiredMixin, View):
             old_balance = client.balance
             new_balance = client.adjust_balance(amount, adjustment_type)
             
+            LogService.log_action(
+                action="Adjust Balance",
+                details=f"Adjusted balance for {client.name} ({adjustment_type} {amount})",
+                request=request
+            )
             messages.success(
                 request, 
                 f'Balance adjusted for "{client.name}": ${old_balance} → ${new_balance}'
@@ -176,8 +202,14 @@ class TwilioAccountCreateView(StaffRequiredMixin, CreateView):
     success_url = reverse_lazy('admin_dashboard:twilio_account_list')
     
     def form_valid(self, form):
+        response = super().form_valid(form)
+        LogService.log_action(
+            action="Add Twilio Account",
+            details=f"Added Twilio account {form.instance.sid}",
+            request=self.request
+        )
         messages.success(self.request, f'Twilio account "{form.instance.sid}" added successfully!')
-        return super().form_valid(form)
+        return response
 
 
 class TwilioAccountUpdateView(StaffRequiredMixin, UpdateView):
@@ -188,8 +220,14 @@ class TwilioAccountUpdateView(StaffRequiredMixin, UpdateView):
     success_url = reverse_lazy('admin_dashboard:twilio_account_list')
     
     def form_valid(self, form):
+        response = super().form_valid(form)
+        LogService.log_action(
+            action="Update Twilio Account",
+            details=f"Updated Twilio account {form.instance.sid}",
+            request=self.request
+        )
         messages.success(self.request, f'Twilio account "{form.instance.sid}" updated successfully!')
-        return super().form_valid(form)
+        return response
 
 
 class TwilioAccountDeleteView(StaffRequiredMixin, DeleteView):
@@ -312,6 +350,12 @@ class APIKeyGenerateView(StaffRequiredMixin, View):
             # Generate the key with granular permissions
             api_key, plain_key = APIKey.generate_key(client, prefix, **kwargs)
             
+            LogService.log_action(
+                action="Generate API Key",
+                details=f"Generated API key {api_key.prefix}... for {client.name}",
+                request=request
+            )
+            
             messages.success(
                 request,
                 f'API key generated successfully for "{client.name}"!'
@@ -386,3 +430,70 @@ class SystemMonitoringView(StaffRequiredMixin, TemplateView):
         ).order_by('-keys_count')[:10]
         
         return context
+
+
+# ============================================================================
+# Communication & Audit Logs
+# ============================================================================
+
+class CommunicationHistoryView(StaffRequiredMixin, ListView):
+    """View all communication logs with filtering"""
+    model = CommunicationLog
+    template_name = 'admin/communication_history.html'
+    context_object_name = 'logs'
+    paginate_by = 50
+
+    def get_queryset(self):
+        queryset = CommunicationLog.objects.select_related('client', 'account').all()
+        
+        # Filter by type
+        comm_type = self.request.GET.get('type')
+        if comm_type:
+            queryset = queryset.filter(communication_type=comm_type)
+            
+        # Filter by client
+        client_id = self.request.GET.get('client')
+        if client_id:
+            queryset = queryset.filter(client_id=client_id)
+            
+        # Filter by status
+        status = self.request.GET.get('status')
+        if status:
+            queryset = queryset.filter(status=status)
+            
+        # Search
+        search = self.request.GET.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(twilio_sid__icontains=search) | 
+                Q(to_number__icontains=search) | 
+                Q(body__icontains=search)
+            )
+            
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['clients'] = Client.objects.all()
+        context['comm_types'] = CommunicationLog.COMM_TYPES
+        return context
+
+
+class AuditLogListView(StaffRequiredMixin, ListView):
+    """View all audit logs with search"""
+    model = AuditLog
+    template_name = 'admin/audit_log_list.html'
+    context_object_name = 'logs'
+    paginate_by = 50
+
+    def get_queryset(self):
+        queryset = AuditLog.objects.all()
+        
+        search = self.request.GET.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(action__icontains=search) | 
+                Q(details__icontains=search)
+            )
+            
+        return queryset

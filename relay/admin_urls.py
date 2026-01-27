@@ -34,4 +34,8 @@ urlpatterns = [
     
     # System Monitoring
     path('monitoring/', admin_views.SystemMonitoringView.as_view(), name='monitoring'),
+    
+    # Communication & Audit Logs
+    path('history/', admin_views.CommunicationHistoryView.as_view(), name='communication_history'),
+    path('audit-logs/', admin_views.AuditLogListView.as_view(), name='audit_log_list'),
 ]

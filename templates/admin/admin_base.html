@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <!-- Admin CSS -->
     <link rel="stylesheet" href="{% static 'css/admin.css' %}?v=2">
@@ -68,6 +69,20 @@
                         class="admin-nav-link {% if request.resolver_match.url_name == 'monitoring' %}active{% endif %}">
                         <i class="fas fa-heartbeat"></i>
                         <span>System Health</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="{% url 'admin_dashboard:communication_history' %}"
+                        class="admin-nav-link {% if 'communication_history' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-history"></i>
+                        <span>Comm. History</span>
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="{% url 'admin_dashboard:audit_log_list' %}"
+                        class="admin-nav-link {% if 'audit_log_list' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Audit Logs</span>
                     </a>
                 </li>
                 <li class="admin-nav-item"
