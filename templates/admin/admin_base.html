@@ -34,14 +34,14 @@
                 <li class="admin-nav-item">
                     <a href="{% url 'admin_dashboard:dashboard' %}"
                         class="admin-nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-                        <i class="fas fa-grid-2"></i>
+                        <i class="fas fa-th-large"></i>
                         <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="admin-nav-item">
                     <a href="{% url 'admin_dashboard:monitoring' %}"
                         class="admin-nav-link {% if request.resolver_match.url_name == 'monitoring' %}active{% endif %}">
-                        <i class="fas fa-activity"></i>
+                        <i class="fas fa-heartbeat"></i>
                         <span>System Health</span>
                     </a>
                 </li>
@@ -51,28 +51,28 @@
                 <li class="admin-nav-item">
                     <a href="{% url 'admin_dashboard:client_list' %}"
                         class="admin-nav-link {% if 'client' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-user-group"></i>
+                        <i class="fas fa-users"></i>
                         <span>Clients</span>
                     </a>
                 </li>
                 <li class="admin-nav-item">
                     <a href="{% url 'admin_dashboard:apikey_list' %}"
                         class="admin-nav-link {% if 'apikey' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-shield-keyhole"></i>
+                        <i class="fas fa-key"></i>
                         <span>API Keys</span>
                     </a>
                 </li>
                 <li class="admin-nav-item">
                     <a href="{% url 'admin_dashboard:twilio_account_list' %}"
                         class="admin-nav-link {% if 'twilio_account' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-cloud-network"></i>
+                        <i class="fas fa-server"></i>
                         <span>Twilio Accounts</span>
                     </a>
                 </li>
                 <li class="admin-nav-item">
                     <a href="{% url 'admin_dashboard:routing_rule_list' %}"
                         class="admin-nav-link {% if 'routing_rule' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-diagram-nested"></i>
+                        <i class="fas fa-route"></i>
                         <span>Routing Rules</span>
                     </a>
                 </li>
@@ -82,14 +82,14 @@
                 <li class="admin-nav-item">
                     <a href="{% url 'admin_dashboard:communication_history' %}"
                         class="admin-nav-link {% if 'communication_history' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-message-captions"></i>
+                        <i class="fas fa-history"></i>
                         <span>Comm. History</span>
                     </a>
                 </li>
                 <li class="admin-nav-item">
                     <a href="{% url 'admin_dashboard:audit_log_list' %}"
                         class="admin-nav-link {% if 'audit_log_list' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-list-check"></i>
+                        <i class="fas fa-clipboard-list"></i>
                         <span>Audit Logs</span>
                     </a>
                 </li>
