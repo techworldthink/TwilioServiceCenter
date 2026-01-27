@@ -30,4 +30,4 @@ Thumbs.db
 # Docker
 deployment/.env.prod
 
-example/
+example/*
