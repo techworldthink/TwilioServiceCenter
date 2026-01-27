@@ -9,6 +9,10 @@ class RelayAuthMiddleware(MiddlewareMixin):
         # Only apply to /relay/ paths
         if not request.path.startswith('/relay/'):
             return None
+        
+        # Exempt health check endpoint from authentication
+        if request.path == '/relay/api/health':
+            return None
 
         auth_header = request.headers.get('X-Proxy-Auth')
         if not auth_header:
@@ -49,6 +53,8 @@ class RelayAuthMiddleware(MiddlewareMixin):
             # However, for now, let's just CACHE THE OBJECT (Django cache can pickle). 
             # If using Redis/Memcached, value size is small enough.
             k.forced_account = cached_data.get('forced_account_obj')
+            # Add client object for views that need api_key.client
+            k.client = cached_data['client_obj']
             
             request.api_key = k
             return None
@@ -63,7 +69,8 @@ class RelayAuthMiddleware(MiddlewareMixin):
                 'allow_sms': api_key.allow_sms,
                 'allow_voice': api_key.allow_voice,
                 'allow_whatsapp': api_key.allow_whatsapp,
-                'forced_account_obj': api_key.forced_account # Caching the actual model instance
+                'forced_account_obj': api_key.forced_account, # Caching the actual model instance
+                'client_obj': api_key.client # Caching the client object for views that need api_key.client
             }
             # Cache for 5 minutes
             cache.set(cache_key, cache_payload, timeout=300)
