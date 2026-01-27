@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from relay.views import HomeView, DashboardView, APIDocsView
+from relay.views import HomeView, DashboardView, APIDocsView, TwilioMessagesView, TwilioCallsView
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 urlpatterns = [
@@ -26,6 +26,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('secure-portal/', include('relay.admin_urls', namespace='admin_dashboard')),
     path('relay/', include('relay.urls')),
+    
+    # Twilio-Compatible APIs (at root, for standard SDKs/Integrations)
+    path('2010-04-01/Accounts/<str:account_sid>/Messages.json', TwilioMessagesView.as_view(), name='root_twilio_messages'),
+    path('2010-04-01/Accounts/<str:account_sid>/Calls.json', TwilioCallsView.as_view(), name='root_twilio_calls'),
     
     # Swagger Documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

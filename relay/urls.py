@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import SendSMSView, WebhookView, HomeView, DashboardView, APIDocsView, StandardSMSView, StandardWhatsAppView, StandardCallView
+from .views import SendSMSView, WebhookView, HomeView, DashboardView, APIDocsView, StandardSMSView, StandardWhatsAppView, StandardCallView, TwilioMessagesView, TwilioCallsView
 from .health_views import HealthCheckView, DiagnosticView
 # TwilioMessagesView and TwilioCallsView can be imported if we want to keep them, but user said "I don't need this kind of endpoints"
 
@@ -15,4 +15,8 @@ urlpatterns = [
 
     # Webhook
     path('twilio/webhook', WebhookView.as_view(), name='twilio_webhook'),
+
+    # Twilio-Compatible APIs (for standard SDKs/Integrations)
+    path('2010-04-01/Accounts/<str:account_sid>/Messages.json', TwilioMessagesView.as_view(), name='twilio_messages'),
+    path('2010-04-01/Accounts/<str:account_sid>/Calls.json', TwilioCallsView.as_view(), name='twilio_calls'),
 ]

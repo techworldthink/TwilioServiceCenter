@@ -6,8 +6,8 @@ import hashlib
 
 class RelayAuthMiddleware(MiddlewareMixin):
     def process_view(self, request, view_func, view_args, view_kwargs):
-        # Only apply to /relay/ paths
-        if not request.path.startswith('/relay/'):
+        # Apply to /relay/ paths AND Twilio-compatible paths
+        if not request.path.startswith('/relay/') and not request.path.startswith('/2010-04-01/'):
             return None
         
         # Exempt health check endpoint from authentication
