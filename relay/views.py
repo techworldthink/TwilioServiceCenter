@@ -73,9 +73,36 @@ class StandardSMSView(APIView):
         api_key = getattr(request, 'api_key', None)
         
         if not client_id or not api_key:
+            # Log unauthorized attempt
+            LogService.log_communication(
+                client=None,
+                api_key=None,
+                account=None,
+                comm_type='sms',
+                to_num=request.data.get('To', ''),
+                from_num=request.data.get('From', ''),
+                body=request.data.get('Body', ''),
+                status='rejected',
+                cost=0,
+                error='Unauthorized: Missing client_id or API Key'
+            )
             return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
             
         if not api_key.allow_sms:
+            # Log the capability check failure
+            data = request.data
+            LogService.log_communication(
+                client=api_key.client,
+                api_key=api_key,
+                account=None,
+                comm_type='sms',
+                to_num=data.get('To', ''),
+                from_num=data.get('From', ''),
+                body=data.get('Body', ''),
+                status='rejected',
+                cost=0,
+                error='SMS capability disabled for this API Key'
+            )
             return Response({'error': 'SMS capability disabled for this API Key'}, status=status.HTTP_403_FORBIDDEN)
             
         serializer = SMSSerializer(data=request.data)
@@ -88,6 +115,19 @@ class StandardSMSView(APIView):
         estimated_cost = decimal.Decimal('0.0075')
         success, balance = BillingService.deduct_balance(client_id, estimated_cost)
         if not success:
+            # Log insufficient funds rejection
+            LogService.log_communication(
+                client=api_key.client,
+                api_key=api_key,
+                account=None,
+                comm_type='sms',
+                to_num=data['To'],
+                from_num=data.get('From', ''),
+                body=data['Body'],
+                status='rejected',
+                cost=0,
+                error='Insufficient Funds'
+            )
             return Response({'error': 'Insufficient Funds'}, status=status.HTTP_402_PAYMENT_REQUIRED)
             
         # 2. Routing
@@ -154,9 +194,34 @@ class StandardWhatsAppView(APIView):
         api_key = getattr(request, 'api_key', None)
         
         if not client_id or not api_key:
+            LogService.log_communication(
+                client=None,
+                api_key=None,
+                account=None,
+                comm_type='whatsapp',
+                to_num=request.data.get('To', ''),
+                from_num=request.data.get('From', ''),
+                body=request.data.get('Body', ''),
+                status='rejected',
+                cost=0,
+                error='Unauthorized: Missing client_id or API Key'
+            )
             return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
             
         if not api_key.allow_whatsapp:
+            data = request.data
+            LogService.log_communication(
+                client=api_key.client,
+                api_key=api_key,
+                account=None,
+                comm_type='whatsapp',
+                to_num=data.get('To', ''),
+                from_num=data.get('From', ''),
+                body=data.get('Body', ''),
+                status='rejected',
+                cost=0,
+                error='WhatsApp capability disabled for this API Key'
+            )
             return Response({'error': 'WhatsApp capability disabled for this API Key'}, status=status.HTTP_403_FORBIDDEN)
             
         serializer = WhatsAppSerializer(data=request.data)
@@ -169,6 +234,18 @@ class StandardWhatsAppView(APIView):
         estimated_cost = decimal.Decimal('0.0050')
         success, balance = BillingService.deduct_balance(client_id, estimated_cost)
         if not success:
+            LogService.log_communication(
+                client=api_key.client,
+                api_key=api_key,
+                account=None,
+                comm_type='whatsapp',
+                to_num=data['To'],
+                from_num=data.get('From', ''),
+                body=data['Body'],
+                status='rejected',
+                cost=0,
+                error='Insufficient Funds'
+            )
             return Response({'error': 'Insufficient Funds'}, status=status.HTTP_402_PAYMENT_REQUIRED)
 
         # 2. Routing (Route by raw number, excluding 'whatsapp:' prefix)
@@ -248,9 +325,34 @@ class StandardCallView(APIView):
         api_key = getattr(request, 'api_key', None)
         
         if not client_id or not api_key:
+            LogService.log_communication(
+                client=None,
+                api_key=None,
+                account=None,
+                comm_type='call',
+                to_num=request.data.get('To', ''),
+                from_num=request.data.get('From', ''),
+                body='Voice Call',
+                status='rejected',
+                cost=0,
+                error='Unauthorized: Missing client_id or API Key'
+            )
             return Response({'error': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
         
         if not api_key.allow_voice:
+            data = request.data
+            LogService.log_communication(
+                client=api_key.client,
+                api_key=api_key,
+                account=None,
+                comm_type='call',
+                to_num=data.get('To', ''),
+                from_num=data.get('From', ''),
+                body='Voice Call',
+                status='rejected',
+                cost=0,
+                error='Voice capability disabled for this API Key'
+            )
             return Response({'error': 'Voice capability disabled for this API Key'}, status=status.HTTP_403_FORBIDDEN)
             
         serializer = CallSerializer(data=request.data)
@@ -263,6 +365,18 @@ class StandardCallView(APIView):
         estimated_cost = decimal.Decimal('0.015')
         success, balance = BillingService.deduct_balance(client_id, estimated_cost)
         if not success:
+            LogService.log_communication(
+                client=api_key.client,
+                api_key=api_key,
+                account=None,
+                comm_type='call',
+                to_num=data['To'],
+                from_num=data.get('From', ''),
+                body=data.get('Url', data.get('Twiml', 'Voice Call')),
+                status='rejected',
+                cost=0,
+                error='Insufficient Funds'
+            )
             return Response({'error': 'Insufficient Funds'}, status=status.HTTP_402_PAYMENT_REQUIRED)
             
         # 2. Routing
