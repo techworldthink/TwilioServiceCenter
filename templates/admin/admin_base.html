@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <!-- Admin CSS -->
-    <link rel="stylesheet" href="{% static 'css/admin.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}?v=3">
 
     {% block extra_css %}{% endblock %}
 </head>
@@ -29,70 +29,82 @@
 
         <nav>
             <ul class="admin-nav">
+                <!-- Main Section -->
+                <li class="admin-nav-group-label">Overview</li>
                 <li class="admin-nav-item">
                     <a href="{% url 'admin_dashboard:dashboard' %}"
                         class="admin-nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-                        <i class="fas fa-chart-line"></i>
+                        <i class="fas fa-grid-2"></i>
                         <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="admin-nav-item">
+                    <a href="{% url 'admin_dashboard:monitoring' %}"
+                        class="admin-nav-link {% if request.resolver_match.url_name == 'monitoring' %}active{% endif %}">
+                        <i class="fas fa-activity"></i>
+                        <span>System Health</span>
+                    </a>
+                </li>
+
+                <!-- Management Section -->
+                <li class="admin-nav-group-label">Management</li>
+                <li class="admin-nav-item">
                     <a href="{% url 'admin_dashboard:client_list' %}"
                         class="admin-nav-link {% if 'client' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-users"></i>
+                        <i class="fas fa-user-group"></i>
                         <span>Clients</span>
                     </a>
                 </li>
                 <li class="admin-nav-item">
                     <a href="{% url 'admin_dashboard:apikey_list' %}"
                         class="admin-nav-link {% if 'apikey' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-key"></i>
+                        <i class="fas fa-shield-keyhole"></i>
                         <span>API Keys</span>
                     </a>
                 </li>
                 <li class="admin-nav-item">
                     <a href="{% url 'admin_dashboard:twilio_account_list' %}"
                         class="admin-nav-link {% if 'twilio_account' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-comments"></i>
+                        <i class="fas fa-cloud-network"></i>
                         <span>Twilio Accounts</span>
                     </a>
                 </li>
                 <li class="admin-nav-item">
                     <a href="{% url 'admin_dashboard:routing_rule_list' %}"
                         class="admin-nav-link {% if 'routing_rule' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-route"></i>
+                        <i class="fas fa-diagram-nested"></i>
                         <span>Routing Rules</span>
                     </a>
                 </li>
-                <li class="admin-nav-item">
-                    <a href="{% url 'admin_dashboard:monitoring' %}"
-                        class="admin-nav-link {% if request.resolver_match.url_name == 'monitoring' %}active{% endif %}">
-                        <i class="fas fa-heartbeat"></i>
-                        <span>System Health</span>
-                    </a>
-                </li>
+
+                <!-- Logs Section -->
+                <li class="admin-nav-group-label">Reports</li>
                 <li class="admin-nav-item">
                     <a href="{% url 'admin_dashboard:communication_history' %}"
                         class="admin-nav-link {% if 'communication_history' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-history"></i>
+                        <i class="fas fa-message-captions"></i>
                         <span>Comm. History</span>
                     </a>
                 </li>
                 <li class="admin-nav-item">
                     <a href="{% url 'admin_dashboard:audit_log_list' %}"
                         class="admin-nav-link {% if 'audit_log_list' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-clipboard-list"></i>
+                        <i class="fas fa-list-check"></i>
                         <span>Audit Logs</span>
                     </a>
                 </li>
-                <li class="admin-nav-item"
-                    style="margin-top: 2rem; border-top: 1px solid rgba(148, 163, 184, 0.1); padding-top: 1rem;">
+
+                <!-- System Section -->
+                <li class="admin-nav-group-label">System</li>
+                <li class="admin-nav-item">
                     <a href="{% url 'home' %}" class="admin-nav-link">
+                        <i class="fas fa-arrow-left"></i>
                         <span>Back to Site</span>
                     </a>
                 </li>
                 <li class="admin-nav-item">
                     <a href="/admin/logout/" class="admin-nav-link">
+                        <i class="fas fa-sign-out-alt"></i>
                         <span>Logout</span>
                     </a>
                 </li>
