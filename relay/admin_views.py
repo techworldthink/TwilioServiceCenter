@@ -474,8 +474,45 @@ class CommunicationHistoryView(StaffRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['clients'] = Client.objects.all()
-        context['comm_types'] = CommunicationLog.COMM_TYPES
+        
+        # Get current filter values
+        selected_type = self.request.GET.get('type', '')
+        selected_client = self.request.GET.get('client', '')
+        selected_status = self.request.GET.get('status', '')
+        
+        # Prepare list of clients with selected state
+        context['clients_options'] = [
+            {
+                'id': str(c.id), 
+                'name': c.name, 
+                'selected': str(c.id) == selected_client
+            } for c in Client.objects.all()
+        ]
+        
+        # Prepare list of communication types with selected state
+        context['comm_types_options'] = [
+            {
+                'code': code, 
+                'name': name, 
+                'selected': code == selected_type
+            } for code, name in CommunicationLog.COMM_TYPES
+        ]
+        
+        # Prepare status options with selected state
+        status_choices = [
+            ('sent', 'Sent'),
+            ('delivered', 'Delivered'),
+            ('failed', 'Failed'),
+            ('pending', 'Pending'),
+        ]
+        context['status_options'] = [
+            {
+                'code': code, 
+                'name': name, 
+                'selected': code == selected_status
+            } for code, name in status_choices
+        ]
+        
         return context
 
 
