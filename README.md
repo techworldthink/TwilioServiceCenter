@@ -115,7 +115,7 @@ Once the server is running, you can access the following:
 
 ### Send SMS
 
-**Endpoint**: `POST /relay/api/sms`
+**Endpoint**: `POST /relay/sms`
 
 **Headers**:
 ```
@@ -132,61 +132,20 @@ Content-Type: application/json
 }
 ```
 
-### Send WhatsApp
-
-**Endpoint**: `POST /relay/api/whatsapp`
-
-**Headers**:
-```
-X-Proxy-Auth: your_api_key_here
-Content-Type: application/json
-```
-
-**Request Body**:
-```json
-{
-  "To": "+1234567890",
-  "From": "+0987654321",
-  "Body": "Hello World"
-}
-```
-
-*(Prefix 'whatsapp:' is automatically added if missing)*
-
-### Make Call
-
-**Endpoint**: `POST /relay/api/call`
-
-**Headers**:
-```
-X-Proxy-Auth: your_api_key_here
-Content-Type: application/json
-```
-
-**Request Body**:
-```json
-{
-  "To": "+1234567890",
-  "From": "+0987654321",
-  "Url": "http://demo.twilio.com/docs/voice.xml"
-}
-```
-
-### Response Format (Success)
+**Response**:
 ```json
 {
   "sid": "SM...",
-  "status": "sent",
-  "cost": "0.0075"
+  "status": "queued",
+  "cost": "0.0075",
+  "remaining_balance": "99.9925"
 }
 ```
 
-### Error Responses
+**Error Responses**:
 - `401`: Invalid or missing API key
 - `402`: Insufficient funds
-- `403`: Capability disabled for API Key
-- `503`: No routing rule found
-- `500`: Twilio error or internal server error
+- `500`: No routing rule found or Twilio error
 
 ### Webhook Endpoint
 
@@ -212,7 +171,7 @@ key_hash = hashlib.sha256(raw_key.encode()).hexdigest()
 ```
 
 4. **Add Twilio Account**:
-   - SID: Your Twilio Account SID (No restriction on "AC" prefix or length)
+   - SID: Your Twilio Account SID
    - Use `set_token()` method to encrypt and store auth token
    - Description: "Primary Account"
 
@@ -223,18 +182,31 @@ key_hash = hashlib.sha256(raw_key.encode()).hexdigest()
 
 ## Testing
 
-### Test Examples
-Check the `example/` directory for ready-to-use Python scripts:
-- `example/send_sms.py`
-- `example/send_whatsapp.py`
-- `example/make_call.py`
-
-### Manual Test (curl)
+### Test Authentication
 ```bash
-curl -X POST http://localhost:8000/relay/api/sms \
+curl -X POST http://localhost:8000/relay/sms \
+  -H "X-Proxy-Auth: invalid_key" \
+  -H "Content-Type: application/json"
+# Expected: 401 Unauthorized
+```
+
+### Test Billing
+```bash
+# Set client balance to 0.0001 in admin
+curl -X POST http://localhost:8000/relay/sms \
+  -H "X-Proxy-Auth: your_valid_key" \
+  -H "Content-Type: application/json" \
+  -d '{"To": "+1234567890", "Body": "Test"}'
+# Expected: 402 Payment Required
+```
+
+### Test Routing
+```bash
+curl -X POST http://localhost:8000/relay/sms \
   -H "X-Proxy-Auth: your_valid_key" \
   -H "Content-Type: application/json" \
   -d '{"To": "+1234567890", "From": "+0987654321", "Body": "Hello"}'
+# Check logs to verify correct Twilio account selection
 ```
 
 ## Project Structure

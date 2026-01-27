@@ -1,0 +1,77 @@
+{% extends 'admin/admin_base.html' %}
+
+{% block title %}Audit Logs{% endblock %}
+{% block page_title %}System Audit Trail{% endblock %}
+
+{% block content %}
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">System Operations</h3>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <form method="get" style="display: flex; gap: 0.5rem;">
+                <input type="text" name="search" placeholder="Search actions, details..."
+                    value="{{ request.GET.search }}" class="admin-form-control" style="width: 250px;">
+                <button type="submit" class="admin-btn admin-btn-secondary">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="admin-card-body">
+        {% if logs %}
+        <div class="admin-table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Action</th>
+                        <th>Details</th>
+                        <th>Source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td style="white-space: nowrap;">{{ log.timestamp|date:"Y-m-d H:i:s" }}</td>
+                        <td><span class="admin-badge admin-badge-secondary">{{ log.action }}</span></td>
+                        <td>{{ log.details|truncatewords:20 }}</td>
+                        <td>
+                            <small style="color: var(--admin-text-muted);">
+                                {{ log.ip_address }}<br>
+                                {{ log.user_agent|truncatechars:30 }}
+                            </small>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if is_paginated %}
+        <div style="margin-top: 1.5rem; text-align: center;">
+            {% if page_obj.has_previous %}
+            <a href="?page=1&search={{ request.GET.search }}"
+                class="admin-btn admin-btn-sm admin-btn-secondary">First</a>
+            <a href="?page={{ page_obj.previous_page_number }}&search={{ request.GET.search }}"
+                class="admin-btn admin-btn-sm admin-btn-secondary">Previous</a>
+            {% endif %}
+
+            <span style="margin: 0 1rem; color: var(--admin-text-muted);">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&search={{ request.GET.search }}"
+                class="admin-btn admin-btn-sm admin-btn-secondary">Next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}&search={{ request.GET.search }}"
+                class="admin-btn admin-btn-sm admin-btn-secondary">Last</a>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% else %}
+        <p style="text-align: center; padding: 3rem; color: var(--admin-text-muted);">
+            No audit records found.
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

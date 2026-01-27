@@ -1,5 +1,5 @@
 from django.db import transaction
-from .models import Client, TwilioAccount, RoutingRule, APIKey
+from .models import Client, TwilioAccount, RoutingRule, APIKey, CommunicationLog, AuditLog
 from cryptography.fernet import Fernet
 from django.conf import settings
 import re
@@ -11,7 +11,6 @@ class BillingService:
     @staticmethod
     def deduct_balance(client_id, amount):
         with transaction.atomic():
-            # Lock the client row for update
             client = Client.objects.select_for_update().get(id=client_id)
             if client.balance >= amount:
                 client.balance -= amount
@@ -22,11 +21,8 @@ class BillingService:
 class RouterService:
     @staticmethod
     def get_account_for_number(to_number, api_key=None):
-        # 1. Check if allowed by API key forced routing
         if api_key and api_key.forced_account:
             return api_key.forced_account
-
-        # 2. Allow default rules or specific pattern matching
         rules = RoutingRule.objects.all().select_related('account')
         for rule in rules:
             if re.match(rule.pattern, to_number):
@@ -37,17 +33,49 @@ class RouterService:
     def get_decrypted_token(account):
         return account.get_token()
 
+class LogService:
+    @staticmethod
+    def log_communication(client, api_key, account, comm_type, to_num, from_num, body, twilio_sid='', status='pending', cost=0, error=''):
+        return CommunicationLog.objects.create(
+            client=client,
+            api_key=api_key,
+            account=account,
+            communication_type=comm_type,
+            to_number=to_num,
+            from_number=from_num,
+            body=body,
+            twilio_sid=twilio_sid,
+            status=status,
+            cost=cost,
+            error_message=error
+        )
+
+    @staticmethod
+    def update_log_status(twilio_sid, status, error=''):
+        try:
+            log = CommunicationLog.objects.get(twilio_sid=twilio_sid)
+            log.status = status
+            if error:
+                log.error_message = error
+            log.save()
+            return log
+        except CommunicationLog.DoesNotExist:
+            return None
+
+    @staticmethod
+    def log_action(action, details='', request=None):
+        log = AuditLog(action=action, details=details)
+        if request:
+            log.ip_address = request.META.get('REMOTE_ADDR')
+            log.user_agent = request.META.get('HTTP_USER_AGENT', '')
+        log.save()
+        return log
+
 class AuthService:
     @staticmethod
     def validate_api_key(key_value):
-        # In a real impl, we'd hash key_value and lookup APIKey.key_hash
-        # For this demo, let's assume key_value IS the key_hash for simplicity 
-        # or that we can lookup by a prefix and verify the hash.
-        # Implementation depends on how keys are generated. 
-        # Let's assume passed key is the raw key, we hash it here.
         import hashlib
         key_hash = hashlib.sha256(key_value.encode()).hexdigest()
-        
         try:
             api_key = APIKey.objects.select_related('client', 'forced_account').get(key_hash=key_hash, is_active=True)
             return api_key

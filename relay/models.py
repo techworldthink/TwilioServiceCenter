@@ -22,14 +22,9 @@ class Client(models.Model):
         return self.name
     
     def get_active_api_keys_count(self):
-        """Get count of active API keys for this client"""
         return self.api_keys.filter(is_active=True).count()
     
     def adjust_balance(self, amount, adjustment_type='add'):
-        """
-        Adjust client balance
-        adjustment_type: 'add', 'deduct', or 'set'
-        """
         if adjustment_type == 'add':
             self.balance += amount
         elif adjustment_type == 'deduct':
@@ -41,17 +36,12 @@ class Client(models.Model):
 
 class APIKey(models.Model):
     client = models.ForeignKey(Client, related_name='api_keys', on_delete=models.CASCADE)
-    key_hash = models.CharField(max_length=128, db_index=True)  # Store SHA256 hash of the key
-    prefix = models.CharField(max_length=8) # Store first few chars for identification
-    
-    # Permissions
+    key_hash = models.CharField(max_length=128, db_index=True)
+    prefix = models.CharField(max_length=8)
     allow_sms = models.BooleanField(default=True)
     allow_voice = models.BooleanField(default=True)
     allow_whatsapp = models.BooleanField(default=True)
-    
-    # Forced Routing (Optional)
     forced_account = models.ForeignKey('TwilioAccount', null=True, blank=True, on_delete=models.SET_NULL, related_name='forced_keys')
-    
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -60,21 +50,9 @@ class APIKey(models.Model):
     
     @staticmethod
     def generate_key(client, custom_prefix=None, **kwargs):
-        """
-        Generate a new API key for a client
-        Returns: (api_key_instance, plain_key)
-        Note: plain_key is only returned once and cannot be retrieved later
-        """
-        # Generate secure random key
         plain_key = secrets.token_urlsafe(32)
-        
-        # Create hash for storage
         key_hash = hashlib.sha256(plain_key.encode()).hexdigest()
-        
-        # Use custom prefix or generate from key
         prefix = custom_prefix if custom_prefix else plain_key[:8]
-        
-        # Create API key instance
         api_key = APIKey.objects.create(
             client=client,
             key_hash=key_hash,
@@ -82,26 +60,21 @@ class APIKey(models.Model):
             is_active=True,
             **kwargs
         )
-        
         return api_key, plain_key
     
     def revoke(self):
-        """Revoke this API key"""
         self.is_active = False
         self.save()
 
 class TwilioAccount(models.Model):
     sid = models.CharField(max_length=64, primary_key=True)
     encrypted_token = models.TextField()
-    name = models.CharField(max_length=255, blank=True, help_text="Friendly name for identification")
-    phone_number = models.CharField(max_length=20, blank=True, help_text="Primary Twilio phone number for this account")
+    name = models.CharField(max_length=255, blank=True)
+    phone_number = models.CharField(max_length=20, blank=True)
     description = models.CharField(max_length=255, blank=True)
-    
-    # Capabilities
     capability_sms = models.BooleanField(default=True)
     capability_voice = models.BooleanField(default=True)
     capability_whatsapp = models.BooleanField(default=True)
-    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -117,8 +90,8 @@ class TwilioAccount(models.Model):
         return f"{self.sid} ({self.description})"
 
 class RoutingRule(models.Model):
-    priority = models.IntegerField(default=100, help_text="Lower number means higher priority")
-    pattern = models.CharField(max_length=255, help_text="Regex pattern to match To number")
+    priority = models.IntegerField(default=100)
+    pattern = models.CharField(max_length=255)
     account = models.ForeignKey(TwilioAccount, related_name='routing_rules', on_delete=models.CASCADE)
     description = models.CharField(max_length=255, blank=True)
     
@@ -127,3 +100,42 @@ class RoutingRule(models.Model):
 
     def __str__(self):
         return f"{self.priority}: {self.pattern} -> {self.account.sid}"
+
+class CommunicationLog(models.Model):
+    COMM_TYPES = [
+        ('sms', 'SMS'),
+        ('whatsapp', 'WhatsApp'),
+        ('call', 'Voice Call'),
+    ]
+    client = models.ForeignKey(Client, related_name='communication_logs', on_delete=models.CASCADE)
+    api_key = models.ForeignKey(APIKey, null=True, blank=True, on_delete=models.SET_NULL)
+    account = models.ForeignKey(TwilioAccount, null=True, blank=True, on_delete=models.SET_NULL)
+    communication_type = models.CharField(max_length=20, choices=COMM_TYPES)
+    to_number = models.CharField(max_length=20)
+    from_number = models.CharField(max_length=20, blank=True)
+    body = models.TextField(blank=True)
+    twilio_sid = models.CharField(max_length=64, db_index=True, blank=True)
+    status = models.CharField(max_length=50, default='pending')
+    cost = models.DecimalField(max_digits=10, decimal_places=4, default=0.0000)
+    error_message = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.communication_type} to {self.to_number} ({self.status})"
+
+class AuditLog(models.Model):
+    action = models.CharField(max_length=255)
+    details = models.TextField(blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"{self.action} at {self.timestamp}"
