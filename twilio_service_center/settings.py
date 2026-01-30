@@ -26,6 +26,9 @@ CSRF_TRUSTED_ORIGINS = [
     "http://twilio.uzhavoorlive.com"
 ]
 
+# Public Host for Webhooks
+PUBLIC_HOST = os.environ.get('PUBLIC_HOST', 'https://twilio.uzhavoorlive.com')
+
 # Proxy headers for SSL termination
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True

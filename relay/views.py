@@ -145,10 +145,18 @@ class StandardSMSView(APIView):
             if not from_number and account.phone_number:
                 from_number = account.phone_number
             
+            # Determine StatusCallback
+            status_callback = data.get('StatusCallback')
+            if not status_callback and getattr(settings, 'PUBLIC_HOST', None):
+                from django.urls import reverse
+                webhook_path = reverse('twilio_webhook')
+                status_callback = f"{settings.PUBLIC_HOST.rstrip('/')}{webhook_path}"
+
             msg = client.messages.create(
                 to=data['To'],
                 from_=from_number,
-                body=data['Body']
+                body=data['Body'],
+                status_callback=status_callback
             )
             
             LogService.log_communication(
@@ -279,6 +287,16 @@ class StandardWhatsAppView(APIView):
                 create_kwargs['from_'] = from_num
             if 'MediaUrl' in data:
                 create_kwargs['media_url'] = data['MediaUrl']
+            
+            # Determine StatusCallback
+            status_callback = data.get('StatusCallback')
+            if not status_callback and getattr(settings, 'PUBLIC_HOST', None):
+                from django.urls import reverse
+                webhook_path = reverse('twilio_webhook')
+                status_callback = f"{settings.PUBLIC_HOST.rstrip('/')}{webhook_path}"
+            
+            if status_callback:
+                create_kwargs['status_callback'] = status_callback
                 
             msg = client.messages.create(**create_kwargs)
             
@@ -402,6 +420,18 @@ class StandardCallView(APIView):
                 create_kwargs['twiml'] = data['Twiml']
             if 'Url' in data:
                 create_kwargs['url'] = data['Url']
+            
+            # Determine StatusCallback
+            # Note: CallStatusCallback usage is slightly different, but usually 'status_callback' works for completion
+            # Ideally client should pass StatusCallbackEvent too if they want intermediate events
+            status_callback = request.data.get('StatusCallback')
+            if not status_callback and getattr(settings, 'PUBLIC_HOST', None):
+                from django.urls import reverse
+                webhook_path = reverse('twilio_webhook')
+                status_callback = f"{settings.PUBLIC_HOST.rstrip('/')}{webhook_path}"
+            
+            if status_callback:
+                create_kwargs['status_callback'] = status_callback
                 
             call = client.calls.create(**create_kwargs)
             

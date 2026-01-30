@@ -18,12 +18,14 @@ class SMSSerializer(serializers.Serializer):
     To = serializers.CharField(help_text="The destination phone number (E.164 format).", required=True)
     Body = serializers.CharField(help_text="The text content of the SMS.", required=True)
     From = serializers.CharField(help_text="Sender ID or phone number.", required=False)
+    StatusCallback = serializers.URLField(help_text="URL for status updates.", required=False)
 
 class WhatsAppSerializer(serializers.Serializer):
     To = serializers.CharField(help_text="The destination WhatsApp number (e.g. +1234567890). Do not include 'whatsapp:' prefix.", required=True)
     Body = serializers.CharField(help_text="The content of the WhatsApp message.", required=True)
     From = serializers.CharField(help_text="Sender WhatsApp number. Do not include 'whatsapp:' prefix.", required=False)
     MediaUrl = serializers.ListField(child=serializers.URLField(), required=False)
+    StatusCallback = serializers.URLField(help_text="URL for status updates.", required=False)
 
 class CallSerializer(serializers.Serializer):
     To = serializers.CharField(help_text="The number to call.", required=True)
