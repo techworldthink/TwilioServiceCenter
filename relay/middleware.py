@@ -13,6 +13,10 @@ class RelayAuthMiddleware(MiddlewareMixin):
         # Exempt health check endpoint from authentication
         if request.path == '/relay/api/health':
             return None
+            
+        # Exempt webhook from authentication
+        if request.path == '/relay/twilio/webhook':
+            return None
 
         auth_header = request.headers.get('X-Proxy-Auth')
         if not auth_header:

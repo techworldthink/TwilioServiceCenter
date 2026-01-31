@@ -661,13 +661,22 @@ class TwilioCallsView(APIView):
             BillingService.deduct_balance(client_id, -estimated_cost)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+from rest_framework.permissions import AllowAny
+
 class WebhookView(APIView):
-    # No Auth required for Twilio webhooks usually, but should validate signature.
-    # For now, let's just log it.
+    # No Auth required for Twilio webhooks
+    authentication_classes = []
+    permission_classes = [AllowAny]
+    
     def post(self, request):
         data = request.data
-        sid = data.get('MessageSid') or data.get('CallSid')
-        status_val = data.get('MessageStatus') or data.get('CallStatus')
+        
+        # Twilio sends different status parameters based on product
+        # SMS: SmsStatus, MessageStatus
+        # Voice: CallStatus
+        sid = data.get('MessageSid') or data.get('CallSid') or data.get('SmsSid')
+        status_val = data.get('MessageStatus') or data.get('CallStatus') or data.get('SmsStatus')
+        
         error_code = data.get('ErrorCode')
         error_message = data.get('ErrorMessage')
         
