@@ -10,3 +10,4 @@ gunicorn
 drf-spectacular
 mysqlclient
 whitenoise
+apscheduler
