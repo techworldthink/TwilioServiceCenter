@@ -681,7 +681,13 @@ class WebhookView(APIView):
         error_message = data.get('ErrorMessage')
         
         if sid and status_val:
-            error_text = f"Error {error_code}: {error_message}" if error_code else ""
+            if error_code:
+                 error_text = f"Error {error_code}"
+                 if error_message:
+                     error_text += f": {error_message}"
+            else:
+                 error_text = ""
+                 
             LogService.update_log_status(sid, status_val, error=error_text)
             
         print(f"Webhook Received: {data}")
