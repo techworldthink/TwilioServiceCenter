@@ -84,17 +84,14 @@
                         </td>
                         <td>
                             <div style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
-                                title="{{ log.body }}">
-                                {{ log.body }}
-                            </div>
+                                title="{{ log.body }}">{{ log.body }}</div>
                             {% if log.twilio_sid %}
                             <div style="font-size: 0.75rem; color: var(--admin-text-muted);">SID: {{ log.twilio_sid }}
                             </div>
                             {% endif %}
                             {% if log.error_message %}
-                            <div style="font-size: 0.85rem; color: #ef4444; margin-top: 0.25rem; font-weight: 500;">
-                                {{ log.error_message }}
-                            </div>
+                            <div style="font-size: 0.85rem; color: #ef4444; margin-top: 0.25rem; font-weight: 500;">{{
+                                log.error_message }}</div>
                             {% endif %}
                         </td>
                         <td>
