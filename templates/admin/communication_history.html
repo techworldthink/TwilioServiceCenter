@@ -12,8 +12,7 @@
                 <select name="type" class="admin-form-control" style="width: 120px;" onchange="this.form.submit()">
                     <option value="">All Types</option>
                     {% for type in comm_types_options %}
-                    <option value="{{ type.code }}" {% if type.selected %}selected{% endif %}>{{ type.name
-                        }}</option>
+                    <option value="{{ type.code }}" {% if type.selected %}selected{% endif %}>{{ type.name }}</option>
                     {% endfor %}
                 </select>
 
