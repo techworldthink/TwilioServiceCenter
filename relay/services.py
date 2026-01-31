@@ -4,6 +4,8 @@ from cryptography.fernet import Fernet
 from django.conf import settings
 import re
 import logging
+from twilio.rest import Client as TwilioClient
+from twilio.base.exceptions import TwilioRestException
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +70,49 @@ class LogService:
             return log
         except CommunicationLog.DoesNotExist:
             return None
+
+    @staticmethod
+    def sync_status_from_twilio(log):
+        """Fetch latest status from Twilio API and update log."""
+        if not log.twilio_sid or not log.account:
+             return False
+
+        try:
+             token = RouterService.get_decrypted_token(log.account)
+             client = TwilioClient(log.account.sid, token)
+             
+             resource = None
+             if log.communication_type in ['sms', 'whatsapp']:
+                 resource = client.messages(log.twilio_sid).fetch()
+             elif log.communication_type == 'call':
+                 resource = client.calls(log.twilio_sid).fetch()
+                 
+             if resource:
+                 log.status = resource.status
+                 if hasattr(resource, 'error_code') and resource.error_code:
+                     error_text = f"Error {resource.error_code}"
+                     if hasattr(resource, 'error_message') and resource.error_message:
+                         error_text += f": {resource.error_message}"
+                     log.error_message = error_text
+                 
+                 # Cost might update later?
+                 if hasattr(resource, 'price') and resource.price:
+                     log.cost = abs(float(resource.price))
+                     
+                 log.save()
+                 return True
+                 
+        except TwilioRestException as e:
+             # If 404, maybe it doesn't exist?
+             logger.error(f"Twilio Sync Error for {log.twilio_sid}: {e}")
+             if e.status == 404:
+                 log.status = 'not_found'
+                 log.error_message = 'Resource not found in Twilio'
+                 log.save()
+        except Exception as e:
+             logger.error(f"Sync Error: {e}")
+             
+        return False
 
     @staticmethod
     def log_action(action, details='', request=None):
